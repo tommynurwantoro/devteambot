@@ -1,0 +1,24 @@
+version: '3.1'
+
+services:
+  redis:
+    image: redis:6.2-alpine
+    restart: on-failure
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass rootpw
+    networks:
+      - backend
+  khugabot:
+    build: .
+    restart: on-failure
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+
+volumes:
+  pq-db:
+
+networks:
+  backend:

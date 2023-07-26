@@ -1,0 +1,28 @@
+appName: devteambot
+appVersion: v0.1
+environment: production
+shutdownDelay: 10 # in seconds
+logger:
+  stdout: true
+  fileLocation: logs/devteambot.log
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  dbName: devteambot
+  user: root
+  password: secret
+  sslmode: disable
+  maxIdleConn: 10
+  connMaxLifetime: 1 # in hours
+  maxOpenConn: 100
+
+discord:
+  appID: "1133723109548113982"
+  token: ${DISCORD_TOKEN}
+  runInitCommand: false
+  runDeleteCommand: false
+
+redis:
+  address: ${REDIS_ADDRESS}
+  password: ${REDIS_PASSWORD}
