@@ -101,6 +101,11 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 		}
 
 		split := strings.Split(button, "|")
+		if len(split) < 4 {
+			response = "Please check input format"
+			c.Command.SendStandardResponse(i.Interaction, response, true, false)
+			return
+		}
 		id := split[0]
 		name := split[1]
 		iconName := split[2]

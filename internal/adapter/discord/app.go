@@ -20,7 +20,7 @@ func (a *App) Startup() error {
 		logger.Fatal("Error opening connection", err)
 	}
 
-	a.Bot.UpdateListeningStatus("Khuga")
+	a.Bot.UpdateListeningStatus("RUNers")
 
 	return nil
 }

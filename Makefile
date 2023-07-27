@@ -30,3 +30,6 @@ help: Makefile
 	@echo
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
 	@echo
+
+## Build for linux
+## GOOS=darwin GOARCH=amd64 go build -o devtembot main.go
