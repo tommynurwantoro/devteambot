@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-resty/resty/v2"
 )
 
 type Command struct {
@@ -22,7 +21,6 @@ type Command struct {
 	SettingKey  constant.SettingKey `inject:"settingKey"`
 	RedisKey    constant.RedisKey   `inject:"redisKey"`
 	Color       constant.Color      `inject:"color"`
-	GoogleSheet *resty.Client       `inject:"googleSheet"`
 	Admins      map[string]bool     `inject:"admins"`
 	SuperAdmins map[string]bool     `inject:"superAdmins"`
 	cmdList     []*discordgo.ApplicationCommand
