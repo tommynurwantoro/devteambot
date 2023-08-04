@@ -3,6 +3,7 @@ package discord
 import (
 	"devteambot/config"
 	"devteambot/internal/pkg/logger"
+	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -17,7 +18,7 @@ func (a *App) Startup() error {
 
 	err := a.Bot.Open()
 	if err != nil {
-		logger.Fatal("Error opening connection", err)
+		logger.Fatal(fmt.Sprintf("Error opening connection: %s", err.Error()), err)
 	}
 
 	a.Bot.UpdateListeningStatus("Khuga")

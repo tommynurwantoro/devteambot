@@ -10,6 +10,7 @@ import (
 	"devteambot/internal/adapter/resty"
 	"devteambot/internal/constant"
 	"devteambot/internal/domain/setting"
+	"devteambot/internal/pkg/logger"
 
 	"github.com/go-co-op/gocron"
 )
@@ -23,7 +24,7 @@ type Scheduler struct {
 	Color      constant.Color      `inject:"color"`
 
 	SettingRepository setting.Repository `inject:"settingRepository"`
-	MyQuranAPI        resty.MyQuran      `inject:"myQuranAPI"`
+	MyQuranAPI        *resty.MyQuran     `inject:"myQuranAPI"`
 }
 
 func (s *Scheduler) Startup() error {
@@ -33,6 +34,7 @@ func (s *Scheduler) Startup() error {
 
 	// scheduler.Every(30).Seconds().Do(func() {
 	scheduler.Every(1).Day().At("00:01").Do(func() {
+		logger.Info("Get Sholat Schedule")
 		s.GetSholatSchedule(ctx)
 	})
 

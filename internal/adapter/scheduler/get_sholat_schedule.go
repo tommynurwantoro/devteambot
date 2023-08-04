@@ -2,23 +2,14 @@ package scheduler
 
 import (
 	"context"
+	"devteambot/internal/adapter/resty"
 	"devteambot/internal/pkg/logger"
 	"fmt"
 	"time"
 )
 
-type GetSholatResponse struct {
-	Data struct {
-		Jadwal struct {
-			Tanggal string `json:"tanggal"`
-			Dzuhur  string `json:"dzuhur"`
-			Ashar   string `json:"ashar"`
-		} `json:"jadwal"`
-	} `json:"data"`
-}
-
 func (s *Scheduler) GetSholatSchedule(ctx context.Context) {
-	response := new(GetSholatResponse)
+	response := new(resty.GetSholatResponse)
 	req := s.MyQuranAPI.Client.R().SetContext(ctx).
 		ForceContentType("application/json").
 		SetResult(response)

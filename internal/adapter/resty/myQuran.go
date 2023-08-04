@@ -15,3 +15,13 @@ func (m *MyQuran) Startup() error {
 }
 
 func (m *MyQuran) Shutdown() error { return nil }
+
+type GetSholatResponse struct {
+	Data struct {
+		Jadwal struct {
+			Tanggal string `json:"tanggal"`
+			Dzuhur  string `json:"dzuhur"`
+			Ashar   string `json:"ashar"`
+		} `json:"jadwal"`
+	} `json:"data"`
+}

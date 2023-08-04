@@ -38,6 +38,6 @@ func RegisterDiscord(conf *config.Discord) {
 	appContainer.RegisterService("discordApp", new(discord.App))
 }
 
-func RegisterAPI(conf *config.Config) {
+func RegisterAPI() {
 	appContainer.RegisterService("myQuranAPI", new(resty.MyQuran))
 }
