@@ -1,11 +1,13 @@
 package scheduler
 
 import (
+	"context"
 	"time"
 
 	"devteambot/config"
 	"devteambot/internal/adapter/cache"
 	"devteambot/internal/adapter/discord"
+	"devteambot/internal/adapter/resty"
 	"devteambot/internal/constant"
 	"devteambot/internal/domain/setting"
 
@@ -21,16 +23,21 @@ type Scheduler struct {
 	Color      constant.Color      `inject:"color"`
 
 	SettingRepository setting.Repository `inject:"settingRepository"`
+	MyQuranAPI        resty.MyQuran      `inject:"myQuranAPI"`
 }
 
 func (s *Scheduler) Startup() error {
-	// ctx := context.Background()
-	scheduler := gocron.NewScheduler(time.UTC)
+	ctx := context.Background()
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+	scheduler := gocron.NewScheduler(loc)
 
-	// Archive mod report everyday
 	// scheduler.Every(30).Seconds().Do(func() {
-	scheduler.Every(1).Day().At("00:00").Do(func() {
-		// s.SendModReport(ctx)
+	scheduler.Every(1).Day().At("00:01").Do(func() {
+		s.GetSholatSchedule(ctx)
+	})
+
+	scheduler.Every(1).Minute().Do(func() {
+
 	})
 
 	scheduler.StartAsync()
