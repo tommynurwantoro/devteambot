@@ -13,8 +13,9 @@ func (s *Scheduler) GetSholatSchedule(ctx context.Context) {
 	req := s.MyQuranAPI.Client.R().SetContext(ctx).
 		ForceContentType("application/json").
 		SetResult(response)
+	now := time.Now()
 
-	_, err := req.Get("/sholat/jadwal/1505/2023/8/4")
+	_, err := req.Get(fmt.Sprintf("/sholat/jadwal/1505/%d/%d/%d", now.Year(), int(now.Month()), now.Day()))
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error: %s", err.Error()), err)
 		return

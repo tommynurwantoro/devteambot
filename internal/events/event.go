@@ -18,18 +18,6 @@ type Event struct {
 	RandomCoinAt int64
 }
 
-func (e *Event) Startup() error {
-	e.SetRandomCoinAt()
-
-	e.Session.AddHandler(e.Bingo)
-	return nil
-}
+func (e *Event) Startup() error { return nil }
 
 func (e *Event) Shutdown() error { return nil }
-
-func (e *Event) SetRandomCoinAt() {
-	// rand.Seed(time.Now().UnixNano())
-	// e.RandomCoinAt = rand.Int63n(e.Conf.Gamification.RandomCoin.Every) + 5
-
-	// logger.Info(fmt.Sprintf("SetRandomCoin: %d", e.RandomCoinAt))
-}

@@ -10,3 +10,5 @@ type Setting struct {
 	Key     string `gorm:"not null"`
 	Value   string `gorm:"not null"`
 }
+
+type Settings []*Setting

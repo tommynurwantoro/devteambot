@@ -6,6 +6,7 @@ import (
 	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/logger"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -72,4 +73,29 @@ func (r *SettingRepository) GetByKey(ctx context.Context, guildID, key string, v
 	}
 
 	return nil
+}
+
+func (r *SettingRepository) GetAllByKey(ctx context.Context, key string) (setting.Settings, error) {
+	s := make(setting.Settings, 0)
+	redisKey := fmt.Sprintf(SettingKey, "all", key)
+
+	err := r.Cache.Get(ctx, redisKey, &s)
+	if err != nil {
+		if err != cache.ErrNil {
+			return nil, err
+		}
+
+		tx := r.DB.Where("key = ?", key).Find(&s)
+		if tx.Error != nil {
+			if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+				return s, nil
+			}
+			logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
+			return nil, tx.Error
+		}
+
+		r.Cache.Put(ctx, redisKey, s, 30*time.Second)
+	}
+
+	return s, nil
 }

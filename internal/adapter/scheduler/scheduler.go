@@ -39,7 +39,7 @@ func (s *Scheduler) Startup() error {
 	})
 
 	scheduler.Every(1).Minute().Do(func() {
-
+		s.SendReminderSholat(ctx)
 	})
 
 	scheduler.StartAsync()
