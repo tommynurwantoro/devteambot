@@ -22,10 +22,10 @@ func (c *CommandSuperAdmin) Startup() error {
 	if c.Command.Conf.RunInitCommand {
 		commands := []*discordgo.ApplicationCommand{
 			{
-				Name:        "setup",
-				Type:        discordgo.ChatApplicationCommand,
-				Description: "Setup bot for the first time",
-				Options:     []*discordgo.ApplicationCommandOption{},
+				Name:                     "setup",
+				Type:                     discordgo.ChatApplicationCommand,
+				Description:              "Setup bot for the first time",
+				DefaultMemberPermissions: &serverManager,
 			},
 			{
 				Name:        "send_embed",
@@ -160,6 +160,20 @@ func (c *CommandSuperAdmin) Startup() error {
 				},
 				DefaultMemberPermissions: &serverManager,
 			},
+			{
+				Name:        "activate_reminder_sholat",
+				Type:        discordgo.ChatApplicationCommand,
+				Description: "Activate reminder sholat feature",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Name:        "channel_id",
+						Description: "Channel",
+						Type:        discordgo.ApplicationCommandOptionChannel,
+						Required:    true,
+					},
+				},
+				DefaultMemberPermissions: &serverManager,
+			},
 		}
 
 		logger.Info("Adding super admin commands...")
@@ -181,6 +195,9 @@ func (c *CommandSuperAdmin) Startup() error {
 func (c *CommandSuperAdmin) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if i.Type == discordgo.InteractionApplicationCommand {
 		switch i.ApplicationCommandData().Name {
+		case "setup":
+			c.Setup(s, i)
+			return
 		case "add_button_feature":
 			c.AddButtonFeature(s, i)
 			return
@@ -192,6 +209,9 @@ func (c *CommandSuperAdmin) HandleCommand(s *discordgo.Session, i *discordgo.Int
 			return
 		case "send_embed":
 			c.SendEmbed(s, i)
+			return
+		case "activate_reminder_sholat":
+			c.ActivateReminderSholat(s, i)
 			return
 		}
 	}

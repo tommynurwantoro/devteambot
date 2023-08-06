@@ -11,4 +11,13 @@ type Setting struct {
 	Value   string `gorm:"not null"`
 }
 
+func NewSetting(guildID, key, value string) *Setting {
+	return &Setting{
+		Entity:  entity.NewEntity(),
+		GuildID: guildID,
+		Key:     key,
+		Value:   value,
+	}
+}
+
 type Settings []*Setting

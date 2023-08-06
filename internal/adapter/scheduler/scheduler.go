@@ -33,7 +33,7 @@ func (s *Scheduler) Startup() error {
 	scheduler := gocron.NewScheduler(loc)
 
 	// scheduler.Every(30).Seconds().Do(func() {
-	scheduler.Every(1).Day().At("00:01").Do(func() {
+	scheduler.Every(1).Day().At("03:00").Do(func() {
 		logger.Info("Get Sholat Schedule")
 		s.GetSholatSchedule(ctx)
 	})

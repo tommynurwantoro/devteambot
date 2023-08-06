@@ -60,6 +60,9 @@ func (r *SettingRepository) GetByKey(ctx context.Context, guildID, key string, v
 
 		tx := r.DB.First(&s, "guild_id = ? AND key = ?", guildID, key)
 		if tx.Error != nil {
+			if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+				return nil
+			}
 			logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
 			return tx.Error
 		}
@@ -87,7 +90,7 @@ func (r *SettingRepository) GetAllByKey(ctx context.Context, key string) (settin
 
 		tx := r.DB.Where("key = ?", key).Find(&s)
 		if tx.Error != nil {
-			if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 				return s, nil
 			}
 			logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
@@ -98,4 +101,32 @@ func (r *SettingRepository) GetAllByKey(ctx context.Context, key string) (settin
 	}
 
 	return s, nil
+}
+
+func (r *SettingRepository) SetValue(ctx context.Context, guildID, key string, value interface{}) error {
+	bytes, err := json.Marshal(value)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error: %s", err.Error()), err)
+		return err
+	}
+
+	data := &setting.Setting{}
+	tx := r.DB.First(data, "guild_id = ? AND key = ?", guildID, key)
+	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			data = setting.NewSetting(guildID, key, string(bytes))
+		} else {
+			logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
+			return tx.Error
+		}
+	}
+
+	data.Value = string(bytes)
+	tx = r.DB.Save(&data)
+	if tx.Error != nil {
+		logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
+		return tx.Error
+	}
+
+	return nil
 }
