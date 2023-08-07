@@ -91,6 +91,10 @@ func (c *Command) IsAdmin(ctx context.Context, i *discordgo.Interaction) bool {
 		return false
 	}
 
+	if len(admins) == 0 {
+		return false
+	}
+
 	roles := i.Member.Roles
 	for _, role := range roles {
 		if c.Contains(admins, role) {
@@ -109,6 +113,10 @@ func (c *Command) IsSuperAdmin(ctx context.Context, i *discordgo.Interaction) bo
 	err := c.SettingRepository.GetByKey(ctx, i.GuildID, "super_admin", &admins)
 	if err != nil {
 		logger.Error("Error get setting "+err.Error(), err)
+		return false
+	}
+
+	if len(admins) == 0 {
 		return false
 	}
 

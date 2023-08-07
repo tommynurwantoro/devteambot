@@ -53,7 +53,8 @@ func Run(conf *config.Config) {
 	RegisterCache(&conf.Redis)
 	RegisterDomain()
 	RegisterDiscord(&conf.Discord)
-	RegisterRest(conf)
+	// RegisterRest(conf)
+	RegisterAPI()
 
 	appContainer.RegisterService("baseCommand", new(commands.Command))
 	appContainer.RegisterService("commandSuperAdmin", new(commandsuperadmin.CommandSuperAdmin))

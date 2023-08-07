@@ -4,6 +4,7 @@ import (
 	"devteambot/config"
 	"devteambot/internal/adapter/cache"
 	"devteambot/internal/adapter/discord"
+	"devteambot/internal/adapter/resty"
 )
 
 func RegisterDatabase(conf *config.Database) {
@@ -35,4 +36,8 @@ func RegisterDiscord(conf *config.Discord) {
 
 	appContainer.RegisterService("botSession", bot)
 	appContainer.RegisterService("discordApp", new(discord.App))
+}
+
+func RegisterAPI() {
+	appContainer.RegisterService("myQuranAPI", new(resty.MyQuran))
 }

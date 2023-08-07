@@ -6,6 +6,7 @@ import (
 	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/logger"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -59,6 +60,9 @@ func (r *SettingRepository) GetByKey(ctx context.Context, guildID, key string, v
 
 		tx := r.DB.First(&s, "guild_id = ? AND key = ?", guildID, key)
 		if tx.Error != nil {
+			if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+				return nil
+			}
 			logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
 			return tx.Error
 		}
@@ -69,6 +73,59 @@ func (r *SettingRepository) GetByKey(ctx context.Context, guildID, key string, v
 	err = json.Unmarshal([]byte(s.Value), &value)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (r *SettingRepository) GetAllByKey(ctx context.Context, key string) (setting.Settings, error) {
+	s := make(setting.Settings, 0)
+	redisKey := fmt.Sprintf(SettingKey, "all", key)
+
+	err := r.Cache.Get(ctx, redisKey, &s)
+	if err != nil {
+		if err != cache.ErrNil {
+			return nil, err
+		}
+
+		tx := r.DB.Where("key = ?", key).Find(&s)
+		if tx.Error != nil {
+			if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+				return s, nil
+			}
+			logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
+			return nil, tx.Error
+		}
+
+		r.Cache.Put(ctx, redisKey, s, 30*time.Second)
+	}
+
+	return s, nil
+}
+
+func (r *SettingRepository) SetValue(ctx context.Context, guildID, key string, value interface{}) error {
+	bytes, err := json.Marshal(value)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error: %s", err.Error()), err)
+		return err
+	}
+
+	data := &setting.Setting{}
+	tx := r.DB.First(data, "guild_id = ? AND key = ?", guildID, key)
+	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			data = setting.NewSetting(guildID, key, string(bytes))
+		} else {
+			logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
+			return tx.Error
+		}
+	}
+
+	data.Value = string(bytes)
+	tx = r.DB.Save(&data)
+	if tx.Error != nil {
+		logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
+		return tx.Error
 	}
 
 	return nil
