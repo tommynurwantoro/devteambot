@@ -45,7 +45,6 @@ func Run(conf *config.Config) {
 
 	appContainer.RegisterService("redisKey", constant.NewRedisKey())
 	appContainer.RegisterService("settingKey", constant.NewSettingKey())
-	appContainer.RegisterService("phrase", constant.NewPhrase())
 	appContainer.RegisterService("color", constant.NewColor())
 
 	// Dependency Injection
