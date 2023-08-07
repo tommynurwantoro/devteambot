@@ -9,7 +9,9 @@ import (
 )
 
 func (s *Scheduler) SendReminderSholat(ctx context.Context) {
-	now := time.Now()
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+	now := time.Now().In(loc)
+
 	sholatSchedule := resty.GetSholatResponse{}
 	s.Cache.Get(ctx, s.RedisKey.DailySholatSchedule(), &sholatSchedule)
 
