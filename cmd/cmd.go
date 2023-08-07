@@ -5,7 +5,7 @@ import (
 )
 
 var command = &cobra.Command{
-	Use: "khugabot",
+	Use: "devteambot",
 }
 
 func init() {

@@ -9,7 +9,7 @@ services:
     command: redis-server --save 20 1 --loglevel warning --requirepass rootpw
     networks:
       - backend
-  khugabot:
+  devteambot:
     build: .
     restart: on-failure
     ports:
