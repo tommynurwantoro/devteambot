@@ -36,6 +36,6 @@ func (s *Scheduler) SendReminderSholat(ctx context.Context) {
 		}
 
 		logger.Info("Send reminder sholat")
-		s.App.Bot.ChannelMessageSend(channelID, "Udah adzan, yuk sholat dulu!")
+		s.App.Bot.ChannelMessageSend(channelID, "Udah adzan, yuk sholat dulu @everyone !")
 	}
 }
