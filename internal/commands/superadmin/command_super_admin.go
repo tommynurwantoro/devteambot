@@ -174,6 +174,20 @@ func (c *CommandSuperAdmin) Startup() error {
 				},
 				DefaultMemberPermissions: &serverManager,
 			},
+			{
+				Name:        "activate_reminder_presensi",
+				Type:        discordgo.ChatApplicationCommand,
+				Description: "Activate reminder presensi feature",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Name:        "channel_id",
+						Description: "Channel",
+						Type:        discordgo.ApplicationCommandOptionChannel,
+						Required:    true,
+					},
+				},
+				DefaultMemberPermissions: &serverManager,
+			},
 		}
 
 		logger.Info("Adding super admin commands...")

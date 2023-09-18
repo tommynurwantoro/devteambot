@@ -38,9 +38,11 @@ func (s *Scheduler) Startup() error {
 		s.GetSholatSchedule(ctx)
 	})
 
-	scheduler.Every(1).Minute().Do(func() {
-		s.SendReminderSholat(ctx)
-	})
+	scheduler.Every(1).Day().Monday().Tuesday().Wednesday().Thursday().Friday().At("07:55").Do(s.SendReminderPresensi, ctx)
+
+	scheduler.Every(1).Day().Monday().Tuesday().Wednesday().Thursday().Friday().At("17:05").Do(s.SendReminderPresensi, ctx)
+
+	scheduler.Every(1).Minute().Monday().Tuesday().Wednesday().Thursday().Friday().Do(s.SendReminderSholat, ctx)
 
 	scheduler.StartAsync()
 

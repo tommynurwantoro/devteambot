@@ -6,6 +6,7 @@ const (
 	Admin SettingKeyType = iota
 	SuperAdmin
 	ReminderSholatChannel
+	ReminderPresensiChannel
 )
 
 type SettingKey struct {
@@ -17,6 +18,7 @@ func NewSettingKey() SettingKey {
 	key[Admin] = "admin"
 	key[SuperAdmin] = "super_admin"
 	key[ReminderSholatChannel] = "reminder_sholat_channel"
+	key[ReminderPresensiChannel] = "reminder_presensi_channel"
 
 	return SettingKey{key}
 }
@@ -33,4 +35,8 @@ func (c *SettingKey) SuperAdmin() string {
 
 func (c *SettingKey) ReminderSholatChannel() string {
 	return c.Key[ReminderSholatChannel]
+}
+
+func (c *SettingKey) ReminderPresensiChannel() string {
+	return c.Key[ReminderPresensiChannel]
 }
