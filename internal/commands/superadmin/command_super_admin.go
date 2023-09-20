@@ -188,6 +188,20 @@ func (c *CommandSuperAdmin) Startup() error {
 				},
 				DefaultMemberPermissions: &serverManager,
 			},
+			{
+				Name:        "activate_point_feature",
+				Type:        discordgo.ChatApplicationCommand,
+				Description: "Activate point feature",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Name:        "channel_id",
+						Description: "Channel",
+						Type:        discordgo.ApplicationCommandOptionChannel,
+						Required:    true,
+					},
+				},
+				DefaultMemberPermissions: &serverManager,
+			},
 		}
 
 		logger.Info("Adding super admin commands...")
@@ -226,6 +240,9 @@ func (c *CommandSuperAdmin) HandleCommand(s *discordgo.Session, i *discordgo.Int
 			return
 		case "activate_reminder_sholat":
 			c.ActivateReminderSholat(s, i)
+			return
+		case "activate_point_feature":
+			c.ActivatePoint(s, i)
 			return
 		}
 	}
