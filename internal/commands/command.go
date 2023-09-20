@@ -5,6 +5,7 @@ import (
 	"devteambot/internal/adapter/cache"
 	"devteambot/internal/adapter/discord"
 	"devteambot/internal/constant"
+	"devteambot/internal/domain/point"
 	"devteambot/internal/domain/review"
 	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/logger"
@@ -27,6 +28,7 @@ type Command struct {
 
 	SettingRepository setting.Repository `inject:"settingRepository"`
 	ReviewRepository  review.Repository  `inject:"reviewRepository"`
+	PointRepository   point.Repository   `inject:"pointRepository"`
 }
 
 func (c *Command) Startup() error {
@@ -104,6 +106,88 @@ func (c *Command) Startup() error {
 					},
 				},
 			},
+			{
+				Name:        "thanks",
+				Type:        discordgo.ChatApplicationCommand,
+				Description: "Kamu bisa kasih point dengan say thanks ke anggota tim yang lain",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Name:        "to",
+						Description: "Orang yang dituju",
+						Type:        discordgo.ApplicationCommandOptionUser,
+						Required:    true,
+					},
+					{
+						Name:        "core",
+						Description: "Pilih core value yang berhubungan",
+						Type:        discordgo.ApplicationCommandOptionString,
+						Choices: []*discordgo.ApplicationCommandOptionChoice{
+							{
+								Name:  "Run",
+								Value: "run",
+							},
+							{
+								Name:  "Unity",
+								Value: "unity",
+							},
+							{
+								Name:  "Bravery",
+								Value: "bravery",
+							},
+							{
+								Name:  "Integrity",
+								Value: "integrity",
+							},
+							{
+								Name:  "Customer Oriented",
+								Value: "customer-oriented",
+							},
+						},
+						Required: true,
+					},
+					{
+						Name:        "reason",
+						Description: "Alasan kamu memberikan point",
+						Type:        discordgo.ApplicationCommandOptionString,
+						Required:    true,
+					},
+				},
+			},
+			{
+				Name:        "thanks_leaderboard",
+				Type:        discordgo.ChatApplicationCommand,
+				Description: "Show point leaderboard per category",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Name:        "core",
+						Description: "Pilih core value yang berhubungan",
+						Type:        discordgo.ApplicationCommandOptionString,
+						Choices: []*discordgo.ApplicationCommandOptionChoice{
+							{
+								Name:  "Run",
+								Value: "run",
+							},
+							{
+								Name:  "Unity",
+								Value: "unity",
+							},
+							{
+								Name:  "Bravery",
+								Value: "bravery",
+							},
+							{
+								Name:  "Integrity",
+								Value: "integrity",
+							},
+							{
+								Name:  "Customer Oriented",
+								Value: "customer-oriented",
+							},
+						},
+						Required: true,
+					},
+				},
+			},
 		}
 
 		logger.Info("Adding commands...")
@@ -136,6 +220,12 @@ func (c *Command) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCr
 			break
 		case "sudah_direview":
 			c.SudahDireview(s, i)
+			break
+		case "thanks":
+			c.Thanks(s, i)
+			break
+		case "thanks_leaderboard":
+			c.ThanksLeaderboard(s, i)
 			break
 		}
 	}

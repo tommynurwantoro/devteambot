@@ -7,6 +7,7 @@ const (
 	SuperAdmin
 	ReminderSholatChannel
 	ReminderPresensiChannel
+	PointLogChannel
 )
 
 type SettingKey struct {
@@ -19,6 +20,7 @@ func NewSettingKey() SettingKey {
 	key[SuperAdmin] = "super_admin"
 	key[ReminderSholatChannel] = "reminder_sholat_channel"
 	key[ReminderPresensiChannel] = "reminder_presensi_channel"
+	key[PointLogChannel] = "point_log_channel"
 
 	return SettingKey{key}
 }
@@ -39,4 +41,8 @@ func (c *SettingKey) ReminderSholatChannel() string {
 
 func (c *SettingKey) ReminderPresensiChannel() string {
 	return c.Key[ReminderPresensiChannel]
+}
+
+func (c *SettingKey) PointLogChannel() string {
+	return c.Key[PointLogChannel]
 }
