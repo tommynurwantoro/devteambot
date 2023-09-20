@@ -2,6 +2,7 @@ package point
 
 import (
 	"devteambot/internal/domain/sharedkernel/entity"
+	"devteambot/internal/domain/sharedkernel/identity"
 )
 
 type Point struct {
@@ -23,3 +24,12 @@ func NewPoint(guildID, userID, category string, balance int64) *Point {
 }
 
 type Points []*Point
+
+type PointHistory struct {
+	entity.Entity
+	PointID identity.ID `gorm:"not null"`
+	Reason  string      `gorm:"not null"`
+	Changes int64       `gorm:"not null"`
+}
+
+type PointHistories []*PointHistory
