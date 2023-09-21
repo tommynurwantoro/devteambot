@@ -23,13 +23,24 @@ func (c *CommandSuperAdmin) ActivateReminderPresensi(s *discordgo.Session, i *di
 		optionMap[option.Name] = option
 	}
 
-	var channelID string
+	var channelID, roleID string
 
 	if opt, ok := optionMap["channel_id"]; ok {
 		channelID = opt.ChannelValue(s).ID
 	}
 
+	if opt, ok := optionMap["role"]; ok {
+		roleID = opt.RoleValue(s, i.GuildID).ID
+	}
+
 	err := c.SettingRepository.SetValue(ctx, i.GuildID, c.Command.SettingKey.ReminderPresensiChannel(), channelID)
+	if err != nil {
+		response = "Failed to activate reminder"
+		c.Command.SendStandardResponse(i.Interaction, response, true, false)
+		return
+	}
+
+	err = c.SettingRepository.SetValue(ctx, i.GuildID, c.Command.SettingKey.ReminderPresensiRole(), roleID)
 	if err != nil {
 		response = "Failed to activate reminder"
 		c.Command.SendStandardResponse(i.Interaction, response, true, false)
