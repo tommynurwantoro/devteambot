@@ -38,15 +38,27 @@ func (s *Scheduler) Startup() error {
 		s.GetSholatSchedule(ctx)
 	})
 
-	scheduler.Every(1).Day().Monday().Tuesday().Wednesday().Thursday().Friday().At("07:55").Do(func() {
+	scheduler.Every(1).Day().At("07:55").Do(func() {
+		now := time.Now().In(loc)
+		if now.Weekday() == time.Saturday || now.Weekday() == time.Sunday {
+			return
+		}
 		s.SendReminderPresensi(ctx)
 	})
 
-	scheduler.Every(1).Day().Monday().Tuesday().Wednesday().Thursday().Friday().At("17:05").Do(func() {
+	scheduler.Every(1).At("17:05").Do(func() {
+		now := time.Now().In(loc)
+		if now.Weekday() == time.Saturday || now.Weekday() == time.Sunday {
+			return
+		}
 		s.SendReminderPresensi(ctx)
 	})
 
-	scheduler.Every(1).Minute().Monday().Tuesday().Wednesday().Thursday().Friday().Do(func() {
+	scheduler.Every(1).Do(func() {
+		now := time.Now().In(loc)
+		if now.Weekday() == time.Saturday || now.Weekday() == time.Sunday {
+			return
+		}
 		s.SendReminderSholat(ctx)
 	})
 
