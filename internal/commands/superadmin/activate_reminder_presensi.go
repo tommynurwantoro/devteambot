@@ -2,6 +2,7 @@ package superadmin
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -25,7 +26,7 @@ func (c *CommandSuperAdmin) ActivateReminderPresensi(s *discordgo.Session, i *di
 
 	var channelID, roleID string
 
-	if opt, ok := optionMap["channel_id"]; ok {
+	if opt, ok := optionMap["channel"]; ok {
 		channelID = opt.ChannelValue(s).ID
 	}
 
@@ -33,14 +34,7 @@ func (c *CommandSuperAdmin) ActivateReminderPresensi(s *discordgo.Session, i *di
 		roleID = opt.RoleValue(s, i.GuildID).ID
 	}
 
-	err := c.SettingRepository.SetValue(ctx, i.GuildID, c.Command.SettingKey.ReminderPresensiChannel(), channelID)
-	if err != nil {
-		response = "Failed to activate reminder"
-		c.Command.SendStandardResponse(i.Interaction, response, true, false)
-		return
-	}
-
-	err = c.SettingRepository.SetValue(ctx, i.GuildID, c.Command.SettingKey.ReminderPresensiRole(), roleID)
+	err := c.SettingRepository.SetValue(ctx, i.GuildID, c.Command.SettingKey.ReminderPresensi(), fmt.Sprintf("%s|%s", channelID, roleID))
 	if err != nil {
 		response = "Failed to activate reminder"
 		c.Command.SendStandardResponse(i.Interaction, response, true, false)

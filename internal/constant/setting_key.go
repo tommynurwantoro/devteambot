@@ -5,10 +5,8 @@ type SettingKeyType uint
 const (
 	Admin SettingKeyType = iota
 	SuperAdmin
-	ReminderSholatChannel
-	ReminderSholatRole
-	ReminderPresensiChannel
-	ReminderPresensiRole
+	ReminderSholat
+	ReminderPresensi
 	PointLogChannel
 )
 
@@ -20,10 +18,8 @@ func NewSettingKey() SettingKey {
 	key := make(map[SettingKeyType]string)
 	key[Admin] = "admin"
 	key[SuperAdmin] = "super_admin"
-	key[ReminderSholatChannel] = "reminder_sholat_channel"
-	key[ReminderSholatRole] = "reminder_sholat_role"
-	key[ReminderPresensiChannel] = "reminder_presensi_channel"
-	key[ReminderPresensiRole] = "reminder_presensi_role"
+	key[ReminderSholat] = "reminder_sholat"
+	key[ReminderPresensi] = "reminder_presensi"
 	key[PointLogChannel] = "point_log_channel"
 
 	return SettingKey{key}
@@ -39,20 +35,14 @@ func (c *SettingKey) SuperAdmin() string {
 	return c.Key[SuperAdmin]
 }
 
-func (c *SettingKey) ReminderSholatChannel() string {
-	return c.Key[ReminderSholatChannel]
+func (c *SettingKey) ReminderSholat() string {
+	// ChannelID|RoleID
+	return c.Key[ReminderSholat]
 }
 
-func (c *SettingKey) ReminderSholatRole() string {
-	return c.Key[ReminderSholatRole]
-}
-
-func (c *SettingKey) ReminderPresensiChannel() string {
-	return c.Key[ReminderPresensiChannel]
-}
-
-func (c *SettingKey) ReminderPresensiRole() string {
-	return c.Key[ReminderPresensiRole]
+func (c *SettingKey) ReminderPresensi() string {
+	// ChannelID|RoleID
+	return c.Key[ReminderPresensi]
 }
 
 func (c *SettingKey) PointLogChannel() string {

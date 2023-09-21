@@ -166,8 +166,8 @@ func (c *CommandSuperAdmin) Startup() error {
 				Description: "Activate reminder sholat feature",
 				Options: []*discordgo.ApplicationCommandOption{
 					{
-						Name:        "channel_id",
-						Description: "Channel",
+						Name:        "channel",
+						Description: "Channel for the reminder",
 						Type:        discordgo.ApplicationCommandOptionChannel,
 						Required:    true,
 					},
@@ -186,8 +186,8 @@ func (c *CommandSuperAdmin) Startup() error {
 				Description: "Activate reminder presensi feature",
 				Options: []*discordgo.ApplicationCommandOption{
 					{
-						Name:        "channel_id",
-						Description: "Channel",
+						Name:        "channel",
+						Description: "Channel for the reminder",
 						Type:        discordgo.ApplicationCommandOptionChannel,
 						Required:    true,
 					},

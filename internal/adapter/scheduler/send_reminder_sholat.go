@@ -5,6 +5,8 @@ import (
 	"devteambot/internal/adapter/resty"
 	"devteambot/internal/pkg/logger"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -20,7 +22,7 @@ func (s *Scheduler) SendReminderSholat(ctx context.Context) {
 		return
 	}
 
-	settings, err := s.SettingRepository.GetAllByKey(ctx, s.SettingKey.ReminderSholatChannel())
+	settings, err := s.SettingRepository.GetAllByKey(ctx, s.SettingKey.ReminderSholat())
 	if err != nil {
 		return
 	}
@@ -30,14 +32,18 @@ func (s *Scheduler) SendReminderSholat(ctx context.Context) {
 	}
 
 	for _, set := range settings {
-		var channelID string
-		err = json.Unmarshal([]byte(set.Value), &channelID)
+		var val, channelID, roleID string
+		err = json.Unmarshal([]byte(set.Value), &val)
 		if err != nil {
 			logger.Error("Error: "+err.Error(), err)
 			return
 		}
 
+		split := strings.Split(val, "|")
+		channelID = split[0]
+		roleID = split[1]
+
 		logger.Info("Send reminder sholat")
-		s.App.Bot.ChannelMessageSend(channelID, "Udah adzan, yuk sholat dulu @everyone !")
+		s.App.Bot.ChannelMessageSend(channelID, fmt.Sprintf("Udah adzan, yuk sholat dulu <@&%s> !", roleID))
 	}
 }
