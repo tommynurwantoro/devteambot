@@ -241,6 +241,9 @@ func (c *CommandSuperAdmin) HandleCommand(s *discordgo.Session, i *discordgo.Int
 		case "activate_reminder_sholat":
 			c.ActivateReminderSholat(s, i)
 			return
+		case "activate_reminder_presensi":
+			c.ActivateReminderPresensi(s, i)
+			return
 		case "activate_point_feature":
 			c.ActivatePoint(s, i)
 			return
