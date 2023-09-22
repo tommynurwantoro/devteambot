@@ -54,7 +54,7 @@ func (s *Scheduler) Startup() error {
 		s.SendReminderPresensi(ctx)
 	})
 
-	scheduler.Every(1).Do(func() {
+	scheduler.Every(1).Minute().Do(func() {
 		now := time.Now().In(loc)
 		if now.Weekday() == time.Saturday || now.Weekday() == time.Sunday {
 			return
