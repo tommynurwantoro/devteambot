@@ -60,6 +60,6 @@ func (c *Command) TitipReview(s *discordgo.Session, i *discordgo.InteractionCrea
 		return
 	}
 
-	response = fmt.Sprintf("<@%s> barusan titip review ya... %s tolong nanti cek 🫰🏻", i.Member.User.ID, mentions)
+	response = fmt.Sprintf("<@%s> barusan titip review ya... %s tolong nanti cek 🫰🏻\n[%s](%s)", i.Member.User.ID, mentions, title, url)
 	c.SendStandardResponse(i.Interaction, response, false, false)
 }

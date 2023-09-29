@@ -39,7 +39,7 @@ func (c *Command) SudahDireview(s *discordgo.Session, i *discordgo.InteractionCr
 			for _, s := range updating.Reviewer {
 				if s == i.Member.User.ID {
 					found = true
-					response = fmt.Sprintf("FYI buat <@%s> barusan <@%s> udah selesai review", updating.Reporter, s)
+					response = fmt.Sprintf("FYI buat <@%s> barusan <@%s> udah selesai review [%s](%s)", updating.Reporter, s, updating.Title, updating.Url)
 					continue
 				}
 
