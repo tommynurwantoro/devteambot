@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"devteambot/internal/pkg/logger"
 	"fmt"
 	"strings"
 
@@ -37,6 +38,7 @@ func (c *Command) Thanks(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if err := c.SettingRepository.GetByKey(ctx, i.GuildID, c.SettingKey.PointLogChannel(), &pointLogChannel); err != nil {
 		response = "Something went wrong, please try again later"
 		c.SendStandardResponse(i.Interaction, response, true, false)
+		logger.Error(err.Error(), err)
 		return
 	}
 
@@ -50,6 +52,7 @@ func (c *Command) Thanks(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if err := c.Cache.Get(ctx, c.RedisKey.LimitThanks(i.GuildID, i.Member.User.ID), &limit); err != nil {
 		response = "Something went wrong, please try again later"
 		c.SendStandardResponse(i.Interaction, response, true, false)
+		logger.Error(err.Error(), err)
 		return
 	}
 
@@ -62,6 +65,7 @@ func (c *Command) Thanks(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if _, err := c.PointRepository.Increase(ctx, i.GuildID, to, core, reason, 10); err != nil {
 		response = "Something went wrong, can not add rubic"
 		c.SendStandardResponse(i.Interaction, response, true, false)
+		logger.Error(err.Error(), err)
 		return
 	}
 
