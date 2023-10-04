@@ -27,13 +27,13 @@ func (c *Command) ThanksLeaderboard(s *discordgo.Session, i *discordgo.Interacti
 
 	topTen, err := c.PointRepository.GetTopTen(ctx, i.GuildID, core)
 	if err != nil {
-		response = "Something went wrong, can not add point"
+		response = "Something went wrong, can not add rubic"
 		c.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
 	for n, t := range topTen {
-		response = fmt.Sprintf("%s%d. <@%s> : %d POINT\n", response, n+1, t.UserID, t.Balance)
+		response = fmt.Sprintf("%s%d. <@%s> : %d rubic\n", response, n+1, t.UserID, t.Balance)
 	}
 
 	if response != "" {

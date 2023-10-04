@@ -109,7 +109,7 @@ func (c *Command) Startup() error {
 			{
 				Name:        "thanks",
 				Type:        discordgo.ChatApplicationCommand,
-				Description: "Kamu bisa kasih point dengan say thanks ke anggota tim yang lain",
+				Description: "Kamu bisa kasih rubic dengan say thanks ke anggota tim yang lain",
 				Options: []*discordgo.ApplicationCommandOption{
 					{
 						Name:        "to",
@@ -147,7 +147,7 @@ func (c *Command) Startup() error {
 					},
 					{
 						Name:        "reason",
-						Description: "Alasan kamu memberikan point",
+						Description: "Alasan kamu memberikan rubic",
 						Type:        discordgo.ApplicationCommandOptionString,
 						Required:    true,
 					},
@@ -156,7 +156,7 @@ func (c *Command) Startup() error {
 			{
 				Name:        "thanks_leaderboard",
 				Type:        discordgo.ChatApplicationCommand,
-				Description: "Show point leaderboard per category",
+				Description: "Show rubic leaderboard per category",
 				Options: []*discordgo.ApplicationCommandOption{
 					{
 						Name:        "core",
