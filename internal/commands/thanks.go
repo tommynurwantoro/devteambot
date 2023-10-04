@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"devteambot/internal/adapter/cache"
 	"devteambot/internal/pkg/logger"
 	"fmt"
 	"strings"
@@ -49,7 +50,7 @@ func (c *Command) Thanks(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 
 	var limit int64
-	if err := c.Cache.Get(ctx, c.RedisKey.LimitThanks(i.GuildID, i.Member.User.ID), &limit); err != nil {
+	if err := c.Cache.Get(ctx, c.RedisKey.LimitThanks(i.GuildID, i.Member.User.ID), &limit); err != nil && err != cache.ErrNil {
 		response = "Something went wrong, please try again later"
 		c.SendStandardResponse(i.Interaction, response, true, false)
 		logger.Error(err.Error(), err)
