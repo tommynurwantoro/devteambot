@@ -17,7 +17,7 @@ type CommandSuperAdmin struct {
 }
 
 func (c *CommandSuperAdmin) Startup() error {
-	serverManager := int64(discordgo.PermissionAdministrator | discordgo.PermissionManageServer)
+	serverManager := int64(discordgo.PermissionManageServer)
 
 	if c.Command.Conf.RunInitCommand {
 		commands := []*discordgo.ApplicationCommand{
