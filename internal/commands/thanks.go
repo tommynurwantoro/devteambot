@@ -35,6 +35,12 @@ func (c *Command) Thanks(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		reason = opt.StringValue()
 	}
 
+	if to == i.Member.User.ID {
+		response = "Tidak bisa berterima kasih ke diri sendiri"
+		c.SendStandardResponse(i.Interaction, response, true, false)
+		return
+	}
+
 	var pointLogChannel string
 	if err := c.SettingRepository.GetByKey(ctx, i.GuildID, c.SettingKey.PointLogChannel(), &pointLogChannel); err != nil {
 		response = "Something went wrong, please try again later"
