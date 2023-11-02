@@ -62,6 +62,10 @@ func (s *Scheduler) Startup() error {
 		s.SendReminderSholat(ctx)
 	})
 
+	scheduler.Every(1).Monday().At("00:00").Do(func() {
+		s.ResetQuota(ctx)
+	})
+
 	scheduler.StartAsync()
 
 	return nil
