@@ -47,11 +47,11 @@ func (c *Command) ThanksLeaderboard(s *discordgo.Session, i *discordgo.Interacti
 		var rank, user, rubic string
 		for n, t := range topTen {
 			if n == 0 {
-				rank = fmt.Sprintf("%s#%d :first_place: \n", rank, n+1)
+				rank = fmt.Sprintf("%s:first_place: \n", rank)
 			} else if n == 1 {
-				rank = fmt.Sprintf("%s#%d :second_place: \n", rank, n+1)
+				rank = fmt.Sprintf("%s:second_place: \n", rank)
 			} else if n == 2 {
-				rank = fmt.Sprintf("%s#%d :third_place: \n", rank, n+1)
+				rank = fmt.Sprintf("%s:third_place: \n", rank)
 			} else {
 				rank = fmt.Sprintf("%s#%d\n", rank, n+1)
 			}
