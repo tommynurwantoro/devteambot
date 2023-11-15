@@ -42,6 +42,7 @@ func (r *PointRepository) Increase(ctx context.Context, guildID, userID, categor
 	}
 
 	history := &point.PointHistory{
+		Entity:  entity.NewEntity(),
 		PointID: c.ID,
 		Reason:  reason,
 		Changes: total,
@@ -70,6 +71,7 @@ func (r *PointRepository) Decrease(ctx context.Context, guildID, userID, categor
 	}
 
 	history := &point.PointHistory{
+		Entity:  entity.NewEntity(),
 		PointID: c.ID,
 		Reason:  reason,
 		Changes: -total,
@@ -97,7 +99,7 @@ func (r *PointRepository) GetByUserID(ctx context.Context, guildID, userID, cate
 func (r *PointRepository) GetTopTen(ctx context.Context, guildID, category string) (point.Points, error) {
 	listPoint := make(point.Points, 0)
 
-	tx := r.DB.Where("guild_id = ? AND category = ? AND balance > 0", guildID, category).Order("balance DESC").Find(&listPoint).Limit(10)
+	tx := r.DB.Where("guild_id = ? AND category = ? AND balance > 0", guildID, category).Order("balance DESC").Limit(10).Find(&listPoint)
 	if tx.Error != nil {
 		logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
 		return nil, tx.Error
