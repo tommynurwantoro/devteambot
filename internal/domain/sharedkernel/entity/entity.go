@@ -10,7 +10,7 @@ import (
 
 // Entity represents domain Entity
 type Entity struct {
-	ID        identity.ID `json:"id" gorm:"primaryKey;type:uuid;default:public.gen_random_uuid()"`
+	ID        identity.ID `json:"id" gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`
 	CreatedAt time.Time   `json:"createdAt" gorm:"not null;autoCreateTime"`
 	UpdatedAt time.Time   `json:"updatedAt" gorm:"not null;autoUpdateTime"`
 	DeletedAt null.Time   `json:"deletedAt"`

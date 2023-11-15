@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"devteambot/internal/pkg/logger"
 	"fmt"
 	"strings"
 
@@ -19,30 +20,71 @@ func (c *Command) ThanksLeaderboard(s *discordgo.Session, i *discordgo.Interacti
 		optionMap[option.Name] = option
 	}
 
-	var core string
+	categories := []string{"run", "unity", "bravery", "integrity", "customer-oriented"}
 
-	if opt, ok := optionMap["core"]; ok {
-		core = opt.StringValue()
+	message := &discordgo.MessageSend{
+		Content: "RUBIC TOP 10 LEADERBOARD",
 	}
 
-	topTen, err := c.PointRepository.GetTopTen(ctx, i.GuildID, core)
+	for _, core := range categories {
+		logger.Info(core)
+		embed := &discordgo.MessageEmbed{
+			Title: strings.ToUpper(core),
+		}
+
+		topTen, err := c.PointRepository.GetTopTen(ctx, i.GuildID, core)
+		if err != nil {
+			response = "Something went wrong, can not add rubic"
+			c.SendStandardResponse(i.Interaction, response, true, false)
+			return
+		}
+
+		if len(topTen) == 0 {
+			embed.Description = "Belum ada data"
+			continue
+		}
+
+		var rank, user, rubic string
+		for n, t := range topTen {
+			rank = fmt.Sprintf("%s#%d\n", rank, n+1)
+			user = fmt.Sprintf("%s<@%s>\n", user, t.UserID)
+			rubic = fmt.Sprintf("%s%d\n", rubic, t.Balance)
+		}
+
+		embed.Fields = []*discordgo.MessageEmbedField{
+			{
+				Name:   "Rank",
+				Value:  rank,
+				Inline: true,
+			},
+			{
+				Name:   "User",
+				Value:  user,
+				Inline: true,
+			},
+			{
+				Name:   "Rubic",
+				Value:  rubic,
+				Inline: true,
+			},
+		}
+		embed.Color = c.Color.Green
+
+		message.Embeds = append(message.Embeds, embed)
+	}
+
+	if len(message.Embeds) == 0 {
+		message.Content = "Belum ada data"
+	}
+
+	_, err := s.ChannelMessageSendComplex(i.ChannelID, message)
 	if err != nil {
-		response = "Something went wrong, can not add rubic"
+		logger.Error(err.Error(), err)
+		response = "Failed to send embed"
 		c.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
-	for n, t := range topTen {
-		response = fmt.Sprintf("%s%d. <@%s> : %d rubic\n", response, n+1, t.UserID, t.Balance)
-	}
-
-	if response != "" {
-		response = fmt.Sprintf("Berikut leaderboard sementara untuk Core Value %s:\n%s", strings.ToUpper(core), response)
-	}
-
-	if response == "" {
-		response = "Belum ada data"
-	}
-
-	c.SendStandardResponse(i.Interaction, response, false, false)
+	response = "Success to generate leaderboard"
+	c.SendStandardResponse(i.Interaction, response, true, false)
 }

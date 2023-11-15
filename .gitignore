@@ -32,4 +32,4 @@ debug
 
 # Coverage
 coverage.cov
-config.local.yaml
+*.yaml

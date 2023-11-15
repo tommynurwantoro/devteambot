@@ -157,36 +157,6 @@ func (c *Command) Startup() error {
 				Name:        "thanks_leaderboard",
 				Type:        discordgo.ChatApplicationCommand,
 				Description: "Show rubic leaderboard per category",
-				Options: []*discordgo.ApplicationCommandOption{
-					{
-						Name:        "core",
-						Description: "Pilih core value yang berhubungan",
-						Type:        discordgo.ApplicationCommandOptionString,
-						Choices: []*discordgo.ApplicationCommandOptionChoice{
-							{
-								Name:  "Run",
-								Value: "run",
-							},
-							{
-								Name:  "Unity",
-								Value: "unity",
-							},
-							{
-								Name:  "Bravery",
-								Value: "bravery",
-							},
-							{
-								Name:  "Integrity",
-								Value: "integrity",
-							},
-							{
-								Name:  "Customer Oriented",
-								Value: "customer-oriented",
-							},
-						},
-						Required: true,
-					},
-				},
 			},
 		}
 

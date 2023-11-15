@@ -30,6 +30,8 @@ func BuildGorm(conf *config.Database) *gorm.DB {
 		logger.Panic("Cannot initiate gorm ", err)
 	}
 
+	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
+
 	sqlDB, _ := db.DB()
 	sqlDB.SetMaxIdleConns(conf.MaxIdleConn)
 	sqlDB.SetConnMaxLifetime(time.Duration(conf.ConnMaxLifetime) * time.Hour)
