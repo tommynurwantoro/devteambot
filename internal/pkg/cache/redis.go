@@ -3,19 +3,29 @@ package cache
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 type Redis struct {
 	Client *redis.Client
 }
 
-func (r *Redis) Startup() error  { return nil }
-func (r *Redis) Shutdown() error { return r.Client.Close() }
+// New redis
+func New(conf RedisConfig) *Redis {
+	option := &redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", conf.Address, conf.Port),
+		Password: conf.Password,
+	}
 
-// Get .
+	client := redis.NewClient(option)
+
+	return &Redis{Client: client}
+}
+
+// Get data for the given key
 func (c *Redis) Get(ctx context.Context, key string, value interface{}) error {
 	values, err := c.Client.Get(ctx, key).Result()
 	if err == redis.Nil {
@@ -26,7 +36,7 @@ func (c *Redis) Get(ctx context.Context, key string, value interface{}) error {
 	return json.Unmarshal([]byte(values), &value)
 }
 
-// Put .
+// Put data to redis based on key
 func (c *Redis) Put(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	bytes, err := json.Marshal(value)
 	if err != nil {
@@ -35,16 +45,36 @@ func (c *Redis) Put(ctx context.Context, key string, value interface{}, expirati
 	return c.Client.Set(ctx, key, string(bytes), expiration).Err()
 }
 
-// Expire .
+func (c *Redis) HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	values, err := c.Client.HGetAll(ctx, key).Result()
+	if err == redis.Nil {
+		return values, ErrNil
+	} else if err != nil {
+		return values, err
+	}
+
+	if len(values) == 0 {
+		return values, ErrNil
+	}
+
+	return values, nil
+}
+
+func (c *Redis) HSet(ctx context.Context, key string, value map[string]interface{}) error {
+	return c.Client.HSet(ctx, key, value).Err()
+}
+
+// Set expiration for the given key
 func (c *Redis) Expire(ctx context.Context, key string, expiration time.Duration) error {
 	return c.Client.Expire(ctx, key, expiration).Err()
 }
 
-// Delete .
+// Delete data based on key
 func (c *Redis) Delete(ctx context.Context, keys ...string) (int64, error) {
 	return c.Client.Del(ctx, keys...).Result()
 }
 
+// Check if key exist in Redis
 func (c *Redis) Exists(ctx context.Context, keys ...string) (bool, error) {
 	exist, err := c.Client.Exists(ctx, keys...).Result()
 	if err != nil {
@@ -58,19 +88,23 @@ func (c *Redis) Exists(ctx context.Context, keys ...string) (bool, error) {
 	return false, nil
 }
 
+// Increase value for the given key
 func (c *Redis) Increment(ctx context.Context, key string, value int64) (int64, error) {
 	return c.Client.IncrBy(ctx, key, value).Result()
 }
 
+// Decrease value for the given key
 func (c *Redis) Decrement(ctx context.Context, key string, value int64) (int64, error) {
 	return c.Client.DecrBy(ctx, key, value).Result()
 }
 
+// Get available key for the given pattern
 func (c *Redis) Keys(ctx context.Context, pattern string) ([]string, error) {
 	keys, err := c.Client.Keys(ctx, pattern).Result()
 	return keys, err
 }
 
+// Check expiration for the given key
 func (c *Redis) TTL(ctx context.Context, key string) (time.Duration, error) {
 	return c.Client.TTL(ctx, key).Result()
 }

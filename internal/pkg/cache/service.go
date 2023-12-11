@@ -13,9 +13,11 @@ var (
 	ErrCache = errors.New("cache error")
 )
 
-type Cache interface {
+type Service interface {
 	Get(ctx context.Context, key string, value interface{}) error
 	Put(ctx context.Context, key string, value interface{}, expiration time.Duration) error
+	HGetAll(ctx context.Context, key string) (map[string]string, error)
+	HSet(ctx context.Context, key string, value map[string]interface{}) error
 	Expire(ctx context.Context, key string, expiration time.Duration) error
 	Delete(ctx context.Context, keys ...string) (int64, error)
 	Exists(ctx context.Context, keys ...string) (bool, error)

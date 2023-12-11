@@ -9,14 +9,21 @@ import (
 )
 
 type App struct {
-	Bot    *discordgo.Session `inject:"botSession"`
-	Config config.Discord     `inject:"discordConfig"`
+	Bot  *discordgo.Session
+	Conf *config.Config `inject:"config"`
 }
 
 func (a *App) Startup() error {
+	bot, err := discordgo.New("Bot " + a.Conf.Discord.Token)
+	if err != nil {
+		logger.Panic("Cannot authorizing bot ", err)
+	}
+	logger.Info("Bot initialized")
+
+	a.Bot = bot
 	a.Bot.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildMembers
 
-	err := a.Bot.Open()
+	err = a.Bot.Open()
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("Error opening connection: %s", err.Error()), err)
 	}
@@ -27,10 +34,5 @@ func (a *App) Startup() error {
 }
 
 func (a *App) Shutdown() error {
-	err := a.Bot.Close()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return a.Bot.Close()
 }

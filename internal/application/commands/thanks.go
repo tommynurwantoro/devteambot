@@ -2,7 +2,7 @@ package commands
 
 import (
 	"context"
-	"devteambot/internal/adapter/cache"
+	"devteambot/internal/pkg/cache"
 	"devteambot/internal/pkg/logger"
 	"fmt"
 	"strings"
@@ -80,5 +80,5 @@ func (c *Command) Thanks(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	c.SendStandardResponse(i.Interaction, "Success", true, false)
 
-	c.App.Bot.ChannelMessageSend(pointLogChannel, fmt.Sprintf("[%s] - <@%s> barusan kasih 10 rubic ke <@%s> karena %s", strings.ToUpper(core), i.Member.User.ID, to, reason))
+	c.Discord.Bot.ChannelMessageSend(pointLogChannel, fmt.Sprintf("[%s] - <@%s> barusan kasih 10 rubic ke <@%s> karena %s", strings.ToUpper(core), i.Member.User.ID, to, reason))
 }

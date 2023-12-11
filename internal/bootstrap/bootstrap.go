@@ -8,11 +8,12 @@ import (
 	"time"
 
 	"devteambot/config"
+	"devteambot/internal/adapter/rest"
 	"devteambot/internal/adapter/scheduler"
-	"devteambot/internal/commands"
-	commandsuperadmin "devteambot/internal/commands/superadmin"
+	"devteambot/internal/application/commands"
+	commandsuperadmin "devteambot/internal/application/commands/superadmin"
+	"devteambot/internal/application/events"
 	"devteambot/internal/constant"
-	"devteambot/internal/events"
 	"devteambot/internal/pkg/container"
 	"devteambot/internal/pkg/logger"
 
@@ -41,18 +42,19 @@ func Run(conf *config.Config) {
 	// }
 	appContainer.RegisterService("superAdmins", superAdmins)
 	appContainer.RegisterService("admins", admins)
-	appContainer.RegisterService("discordConfig", conf.Discord)
 
 	appContainer.RegisterService("redisKey", constant.NewRedisKey())
 	appContainer.RegisterService("settingKey", constant.NewSettingKey())
 	appContainer.RegisterService("color", constant.NewColor())
 
 	// Dependency Injection
-	RegisterDatabase(&conf.Database)
-	RegisterCache(&conf.Redis)
+	RegisterDatabase()
+	RegisterCache()
 	RegisterDomain()
-	RegisterDiscord(&conf.Discord)
-	// RegisterRest(conf)
+	RegisterDiscord()
+	RegisterResty()
+	RegisterRest()
+	RegisterService()
 	RegisterAPI()
 
 	appContainer.RegisterService("baseCommand", new(commands.Command))
@@ -65,6 +67,14 @@ func Run(conf *config.Config) {
 	if err := appContainer.Ready(); err != nil {
 		logger.Panic("Failed to populate service", err)
 	}
+
+	// Start server
+	fiberApp := appContainer.GetServiceOrNil("rest").(*rest.Fiber)
+	errs := make(chan error, 2)
+	go func() {
+		fmt.Printf("Listening on port :%d", conf.Http.Port)
+		errs <- fiberApp.Listen(fmt.Sprintf(":%d", conf.Http.Port))
+	}()
 
 	logger.Info(fmt.Sprintf("%s started", conf.AppName))
 
@@ -82,7 +92,7 @@ func GracefulShutdown(conf *config.Config) {
 
 	time.Sleep(delay)
 
-	logger.Info(fmt.Sprintf("Cleaning up resources..."))
+	logger.Info("Cleaning up resources...")
 
 	appContainer.Shutdown()
 

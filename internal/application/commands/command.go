@@ -2,12 +2,12 @@ package commands
 
 import (
 	"devteambot/config"
-	"devteambot/internal/adapter/cache"
 	"devteambot/internal/adapter/discord"
 	"devteambot/internal/constant"
 	"devteambot/internal/domain/point"
 	"devteambot/internal/domain/review"
 	"devteambot/internal/domain/setting"
+	"devteambot/internal/pkg/cache"
 	"devteambot/internal/pkg/logger"
 	"fmt"
 	"strings"
@@ -16,9 +16,9 @@ import (
 )
 
 type Command struct {
-	Conf        config.Discord      `inject:"discordConfig"`
-	App         *discord.App        `inject:"discordApp"`
-	Cache       cache.Cache         `inject:"cache"`
+	Conf        *config.Config      `inject:"config"`
+	Discord     *discord.App        `inject:"discord"`
+	Cache       cache.Service       `inject:"cache"`
 	SettingKey  constant.SettingKey `inject:"settingKey"`
 	RedisKey    constant.RedisKey   `inject:"redisKey"`
 	Color       constant.Color      `inject:"color"`
@@ -32,7 +32,7 @@ type Command struct {
 }
 
 func (c *Command) Startup() error {
-	if c.Conf.RunInitCommand {
+	if c.Conf.Discord.RunInitCommand {
 		commands := []*discordgo.ApplicationCommand{
 			{
 				Name:        "ping",
@@ -162,7 +162,7 @@ func (c *Command) Startup() error {
 
 		logger.Info("Adding commands...")
 		for _, v := range commands {
-			cmd, err := c.App.Bot.ApplicationCommandCreate(c.Conf.AppID, "", v)
+			cmd, err := c.Discord.Bot.ApplicationCommandCreate(c.Conf.Discord.AppID, "", v)
 			if err != nil {
 				logger.Fatal(fmt.Sprintf("Cannot create command: %v %s", v.Name, err.Error()), err)
 			}
@@ -171,7 +171,7 @@ func (c *Command) Startup() error {
 		}
 	}
 
-	c.App.Bot.AddHandler(c.HandleCommand)
+	c.Discord.Bot.AddHandler(c.HandleCommand)
 
 	return nil
 }
@@ -181,22 +181,22 @@ func (c *Command) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCr
 		switch i.ApplicationCommandData().Name {
 		case "ping":
 			c.Ping(s, i)
-			break
+			return
 		case "titip_review":
 			c.TitipReview(s, i)
-			break
+			return
 		case "antrian_review":
 			c.AntrianReview(s, i)
-			break
+			return
 		case "sudah_direview":
 			c.SudahDireview(s, i)
-			break
+			return
 		case "thanks":
 			c.Thanks(s, i)
-			break
+			return
 		case "thanks_leaderboard":
 			c.ThanksLeaderboard(s, i)
-			break
+			return
 		}
 	}
 
@@ -205,15 +205,15 @@ func (c *Command) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCr
 		switch {
 		case strings.HasPrefix(commandID, "claim_role"):
 			c.ClaimRole(s, i)
-			break
+			return
 		}
 	}
 }
 
 func (c *Command) Shutdown() error {
-	// if c.Conf.RunDeleteCommand {
+	// if c.Conf.Discord.RunDeleteCommand {
 	// 	for _, cmd := range c.cmdList {
-	// 		err := c.Session.ApplicationCommandDelete(c.Conf.AppID, "", cmd.ID)
+	// 		err := c.Session.ApplicationCommandDelete(c.Conf.Discord.AppID, "", cmd.ID)
 	// 		if err != nil {
 	// 			logger.Fatal(fmt.Sprintf("Cannot delete command: %v %s", cmd.Name, err.Error()), err)
 	// 		}

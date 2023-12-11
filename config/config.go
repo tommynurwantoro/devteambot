@@ -9,10 +9,17 @@ type Config struct {
 	AppVersion    string        `valid:"required"`
 	Environment   string        `valid:"required"`
 	ShutdownDelay time.Duration `valid:"required"`
+	Http          HttpConfig    `valid:"required"`
 	Logger        Logger        `valid:"required"`
 	Database      Database      `valid:"required"`
 	Redis         Redis         `valid:"required"`
 	Discord       Discord       `valid:"required"`
+}
+
+type HttpConfig struct {
+	Port         int `valid:"required"`
+	WriteTimeout int `valid:"required"`
+	ReadTimeout  int `valid:"required"`
 }
 
 type Logger struct {
@@ -46,5 +53,6 @@ type Database struct {
 
 type Redis struct {
 	Address  string `valid:"required"`
+	Port     int    `valid:"required"`
 	Password string
 }

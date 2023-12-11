@@ -4,21 +4,19 @@ import (
 	"context"
 	"time"
 
-	"devteambot/config"
-	"devteambot/internal/adapter/cache"
 	"devteambot/internal/adapter/discord"
 	"devteambot/internal/adapter/resty"
 	"devteambot/internal/constant"
 	"devteambot/internal/domain/setting"
+	"devteambot/internal/pkg/cache"
 	"devteambot/internal/pkg/logger"
 
 	"github.com/go-co-op/gocron"
 )
 
 type Scheduler struct {
-	Conf       config.Discord      `inject:"discordConfig"`
-	Cache      cache.Cache         `inject:"cache"`
-	App        *discord.App        `inject:"discordApp"`
+	Cache      cache.Service       `inject:"cache"`
+	App        *discord.App        `inject:"discord"`
 	SettingKey constant.SettingKey `inject:"settingKey"`
 	RedisKey   constant.RedisKey   `inject:"redisKey"`
 	Color      constant.Color      `inject:"color"`

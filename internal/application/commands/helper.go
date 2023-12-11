@@ -22,7 +22,7 @@ func (c *Command) SendStandardResponse(i *discordgo.Interaction, response string
 		data.Flags = data.Flags | discordgo.MessageFlagsSuppressEmbeds
 	}
 
-	err := c.App.Bot.InteractionRespond(i, &discordgo.InteractionResponse{
+	err := c.Discord.Bot.InteractionRespond(i, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: data,
 	})
@@ -32,7 +32,7 @@ func (c *Command) SendStandardResponse(i *discordgo.Interaction, response string
 }
 
 func (c *Command) EditResponse(i *discordgo.Interaction, response string) {
-	_, err := c.App.Bot.InteractionResponseEdit(i, &discordgo.WebhookEdit{
+	_, err := c.Discord.Bot.InteractionResponseEdit(i, &discordgo.WebhookEdit{
 		Content: &response,
 	})
 	if err != nil {

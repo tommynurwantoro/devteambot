@@ -58,7 +58,7 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 		buttons = append(buttons, opt.StringValue())
 	}
 
-	m, err := c.Command.App.Bot.ChannelMessage(i.ChannelID, messageID)
+	m, err := c.Command.Discord.Bot.ChannelMessage(i.ChannelID, messageID)
 	if err != nil {
 		response = "Something went wrong, please try again later"
 		c.Command.SendStandardResponse(i.Interaction, response, true, false)

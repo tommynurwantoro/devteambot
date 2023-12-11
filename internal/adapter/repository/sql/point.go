@@ -2,16 +2,15 @@ package sql
 
 import (
 	"context"
+	"devteambot/internal/adapter/repository"
 	"devteambot/internal/domain/point"
 	"devteambot/internal/domain/sharedkernel/entity"
 	"devteambot/internal/pkg/logger"
 	"fmt"
-
-	"gorm.io/gorm"
 )
 
 type PointRepository struct {
-	DB *gorm.DB `inject:"database"`
+	DB *repository.Gorm `inject:"database"`
 }
 
 func (r *PointRepository) Startup() error {

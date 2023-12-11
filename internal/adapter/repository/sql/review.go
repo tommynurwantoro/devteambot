@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"devteambot/internal/adapter/repository"
 	"devteambot/internal/domain/review"
 	"devteambot/internal/domain/sharedkernel/identity"
 	"devteambot/internal/pkg/logger"
@@ -12,7 +13,7 @@ import (
 )
 
 type ReviewRepository struct {
-	DB *gorm.DB `inject:"database"`
+	DB *repository.Gorm `inject:"database"`
 }
 
 func (r *ReviewRepository) Startup() error {

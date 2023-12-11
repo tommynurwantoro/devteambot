@@ -5,7 +5,7 @@ import (
 )
 
 func (c *CommandSuperAdmin) Setup(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	c.Command.App.Bot.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	c.Command.Discord.Bot.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseModal,
 		Data: &discordgo.InteractionResponseData{
 			CustomID: "modal_setup",

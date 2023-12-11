@@ -1,7 +1,7 @@
 package superadmin
 
 import (
-	"devteambot/internal/commands"
+	"devteambot/internal/application/commands"
 	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/logger"
 	"fmt"
@@ -19,7 +19,7 @@ type CommandSuperAdmin struct {
 func (c *CommandSuperAdmin) Startup() error {
 	serverManager := int64(discordgo.PermissionManageServer)
 
-	if c.Command.Conf.RunInitCommand {
+	if c.Command.Conf.Discord.RunInitCommand {
 		commands := []*discordgo.ApplicationCommand{
 			{
 				Name:                     "setup",
@@ -218,7 +218,7 @@ func (c *CommandSuperAdmin) Startup() error {
 
 		logger.Info("Adding super admin commands...")
 		for _, v := range commands {
-			cmd, err := c.Command.App.Bot.ApplicationCommandCreate(c.Command.Conf.AppID, "", v)
+			cmd, err := c.Command.Discord.Bot.ApplicationCommandCreate(c.Command.Conf.Discord.AppID, "", v)
 			if err != nil {
 				logger.Fatal(fmt.Sprintf("Cannot create command: %v %s", v.Name, err.Error()), err)
 			}
@@ -227,7 +227,7 @@ func (c *CommandSuperAdmin) Startup() error {
 		}
 	}
 
-	c.Command.App.Bot.AddHandler(c.HandleCommand)
+	c.Command.Discord.Bot.AddHandler(c.HandleCommand)
 
 	return nil
 }

@@ -2,6 +2,12 @@ appName: devteambot
 appVersion: v0.1
 environment: production
 shutdownDelay: 10 # in seconds
+
+http:
+  port: 8080
+  writeTimeout: 15 # in seconds
+  readTimeout: 15 # in seconds
+
 logger:
   stdout: true
   fileLocation: logs/devteambot.log
@@ -25,4 +31,5 @@ discord:
 
 redis:
   address: ${REDIS_ADDRESS}
+  port: ${REDIS_PORT}
   password: ${REDIS_PASSWORD}
