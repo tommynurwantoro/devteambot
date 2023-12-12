@@ -5,11 +5,15 @@ import (
 	"devteambot/internal/application/commands"
 	commandsuperadmin "devteambot/internal/application/commands/superadmin"
 	"devteambot/internal/application/events"
-	"devteambot/internal/application/service"
+	"devteambot/internal/application/scheduler"
 )
 
-func RegisterService() {
-	appContainer.RegisterService("sholatService", new(service.SholatService))
+func RegisterScheduler() {
+	appContainer.RegisterService("scheduler", new(scheduler.Scheduler))
+
+	appContainer.RegisterService("presensiScheduler", new(scheduler.PresensiScheduler))
+	appContainer.RegisterService("poinScheduler", new(scheduler.PoinScheduler))
+	appContainer.RegisterService("sholatScheduler", new(scheduler.SholatScheduler))
 }
 
 func RegisterAPI() {

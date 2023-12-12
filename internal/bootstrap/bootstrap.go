@@ -9,6 +9,7 @@ import (
 
 	"devteambot/config"
 	"devteambot/internal/adapter/rest"
+	"devteambot/internal/application/scheduler"
 	"devteambot/internal/pkg/container"
 	"devteambot/internal/pkg/logger"
 
@@ -48,9 +49,9 @@ func Run(conf *config.Config) {
 	RegisterRest()
 
 	// Application
-	RegisterService()
 	RegisterAPI()
 	RegisterCommand()
+	RegisterScheduler()
 
 	// appContainer.RegisterService("scheduler", new(scheduler.Scheduler))
 
@@ -63,11 +64,17 @@ func Run(conf *config.Config) {
 	fiberApp := appContainer.GetServiceOrNil("rest").(*rest.Fiber)
 	errs := make(chan error, 2)
 	go func() {
-		fmt.Printf("Listening on port :%d", conf.Http.Port)
+		logger.Info(fmt.Sprintf("Listening on port :%d", conf.Http.Port))
 		errs <- fiberApp.Listen(fmt.Sprintf(":%d", conf.Http.Port))
 	}()
 
-	logger.Info(fmt.Sprintf("%s started", conf.AppName))
+	// Start cron
+	sched := appContainer.GetServiceOrNil("scheduler").(*scheduler.Scheduler)
+	go func() {
+		logger.Info("Starting scheduler...")
+		sched.StartAsync()
+		logger.Info("Scheduler started")
+	}()
 
 	GracefulShutdown(conf)
 }

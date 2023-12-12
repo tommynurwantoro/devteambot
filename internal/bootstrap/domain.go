@@ -1,15 +1,20 @@
 package bootstrap
 
-import "devteambot/internal/adapter/repository/gorm"
+import (
+	"devteambot/internal/adapter/repository/gorm"
+	"devteambot/internal/application/service"
+)
 
 func RegisterDomain() {
 	RegisterSetting()
 	RegisterReview()
 	RegisterPoint()
+	RegisterSholat()
 }
 
 func RegisterSetting() {
 	appContainer.RegisterService("settingRepository", new(gorm.SettingRepository))
+	appContainer.RegisterService("settingKey", gorm.NewSettingKey())
 }
 
 func RegisterReview() {
@@ -18,4 +23,8 @@ func RegisterReview() {
 
 func RegisterPoint() {
 	appContainer.RegisterService("pointRepository", new(gorm.PointRepository))
+}
+
+func RegisterSholat() {
+	appContainer.RegisterService("sholatService", new(service.SholatService))
 }

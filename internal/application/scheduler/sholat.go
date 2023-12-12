@@ -1,4 +1,4 @@
-package service
+package scheduler
 
 import (
 	"context"
@@ -15,20 +15,38 @@ import (
 	"time"
 )
 
-type SholatService struct {
+type SholatScheduler struct {
+	Scheduler         *Scheduler         `inject:"scheduler"`
+	Discord           *discord.App       `inject:"discord"`
 	MyQuranAPI        *resty.MyQuran     `inject:"myQuranAPI"`
-	Cache             cache.Service      `inject:"cache"`
-	App               *discord.App       `inject:"discord"`
-	SettingRepository setting.Repository `inject:"settingRepository"`
 	RedisKey          redis.RedisKey     `inject:"redisKey"`
 	SettingKey        gorm.SettingKey    `inject:"settingKey"`
+	Cache             cache.Service      `inject:"cache"`
+	SettingRepository setting.Repository `inject:"settingRepository"`
 }
 
-func (s *SholatService) Startup() error { return nil }
+func (s *SholatScheduler) Startup() error {
+	loc, _ := time.LoadLocation("Asia/Jakarta")
 
-func (s *SholatService) Shutdown() error { return nil }
+	s.Scheduler.Every(1).Day().At("03:00").Do(func() {
+		logger.Info("Get Sholat Schedule")
+		s.GetSholatSchedule(context.Background())
+	})
 
-func (s *SholatService) GetSholatSchedule(ctx context.Context) error {
+	s.Scheduler.Every(1).Minute().Do(func() {
+		now := time.Now().In(loc)
+		if now.Weekday() == time.Saturday || now.Weekday() == time.Sunday {
+			return
+		}
+		s.SendReminderSholat(context.Background())
+	})
+
+	return nil
+}
+
+func (s *SholatScheduler) Shutdown() error { return nil }
+
+func (s *SholatScheduler) GetSholatSchedule(ctx context.Context) {
 	response := new(resty.GetSholatResponse)
 	req := s.MyQuranAPI.Client.R().SetContext(ctx).
 		ForceContentType("application/json").
@@ -39,14 +57,13 @@ func (s *SholatService) GetSholatSchedule(ctx context.Context) error {
 	_, err := req.Get(fmt.Sprintf("/sholat/jadwal/1505/%d/%d/%d", now.Year(), int(now.Month()), now.Day()))
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error: %s", err.Error()), err)
-		return err
+		return
 	}
 
 	s.Cache.Put(ctx, s.RedisKey.DailySholatSchedule(), response, 24*time.Hour)
-	return nil
 }
 
-func (s *SholatService) SendReminderSholat(ctx context.Context) error {
+func (s *SholatScheduler) SendReminderSholat(ctx context.Context) {
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	now := time.Now().In(loc)
 
@@ -55,16 +72,16 @@ func (s *SholatService) SendReminderSholat(ctx context.Context) error {
 
 	timeNow := now.Format("15:04")
 	if timeNow != sholatSchedule.Data.Jadwal.Dzuhur && timeNow != sholatSchedule.Data.Jadwal.Ashar {
-		return nil
+		return
 	}
 
 	settings, err := s.SettingRepository.GetAllByKey(ctx, s.SettingKey.ReminderSholat())
 	if err != nil {
-		return err
+		return
 	}
 
 	if len(settings) == 0 {
-		return nil
+		return
 	}
 
 	for _, set := range settings {
@@ -72,7 +89,7 @@ func (s *SholatService) SendReminderSholat(ctx context.Context) error {
 		err = json.Unmarshal([]byte(set.Value), &val)
 		if err != nil {
 			logger.Error("Error: "+err.Error(), err)
-			return err
+			return
 		}
 
 		split := strings.Split(val, "|")
@@ -80,8 +97,6 @@ func (s *SholatService) SendReminderSholat(ctx context.Context) error {
 		roleID = split[1]
 
 		logger.Info("Send reminder sholat")
-		s.App.Bot.ChannelMessageSend(channelID, fmt.Sprintf("Udah adzan, yuk sholat dulu <@&%s> !", roleID))
+		s.Discord.Bot.ChannelMessageSend(channelID, fmt.Sprintf("Udah adzan, yuk sholat dulu <@&%s> !", roleID))
 	}
-
-	return nil
 }
