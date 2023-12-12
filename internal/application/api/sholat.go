@@ -8,6 +8,7 @@ import (
 
 type SholatAPI interface {
 	GetSholatSchedule(*fiber.Ctx) error
+	SendReminderSholat(*fiber.Ctx) error
 }
 
 type SholatHandler struct {
@@ -25,5 +26,19 @@ func (h *SholatHandler) GetSholatSchedule(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Success get sholat schedule",
+	})
+}
+
+func (h *SholatHandler) SendReminderSholat(c *fiber.Ctx) error {
+	err := h.Service.SendReminderSholat(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to send reminder sholat",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Success send reminder sholat",
 	})
 }

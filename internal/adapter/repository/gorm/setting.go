@@ -1,4 +1,4 @@
-package sql
+package gorm
 
 import (
 	"context"
@@ -11,8 +11,6 @@ import (
 
 	"gorm.io/gorm"
 )
-
-const SettingKey = "setting|%s|%s"
 
 type SettingRepository struct {
 	DB *repository.Gorm `inject:"database"`

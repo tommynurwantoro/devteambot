@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"devteambot/internal/adapter/discord"
+	"devteambot/internal/adapter/repository/gorm"
+	"devteambot/internal/adapter/repository/redis"
 	"devteambot/internal/adapter/resty"
-	"devteambot/internal/constant"
 	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/cache"
 	"devteambot/internal/pkg/logger"
@@ -15,11 +16,10 @@ import (
 )
 
 type Scheduler struct {
-	Cache      cache.Service       `inject:"cache"`
-	App        *discord.App        `inject:"discord"`
-	SettingKey constant.SettingKey `inject:"settingKey"`
-	RedisKey   constant.RedisKey   `inject:"redisKey"`
-	Color      constant.Color      `inject:"color"`
+	Cache      cache.Service   `inject:"cache"`
+	App        *discord.App    `inject:"discord"`
+	SettingKey gorm.SettingKey `inject:"settingKey"`
+	RedisKey   redis.RedisKey  `inject:"redisKey"`
 
 	SettingRepository setting.Repository `inject:"settingRepository"`
 	MyQuranAPI        *resty.MyQuran     `inject:"myQuranAPI"`

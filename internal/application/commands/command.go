@@ -3,7 +3,8 @@ package commands
 import (
 	"devteambot/config"
 	"devteambot/internal/adapter/discord"
-	"devteambot/internal/constant"
+	"devteambot/internal/adapter/repository/gorm"
+	"devteambot/internal/adapter/repository/redis"
 	"devteambot/internal/domain/point"
 	"devteambot/internal/domain/review"
 	"devteambot/internal/domain/setting"
@@ -16,14 +17,13 @@ import (
 )
 
 type Command struct {
-	Conf        *config.Config      `inject:"config"`
-	Discord     *discord.App        `inject:"discord"`
-	Cache       cache.Service       `inject:"cache"`
-	SettingKey  constant.SettingKey `inject:"settingKey"`
-	RedisKey    constant.RedisKey   `inject:"redisKey"`
-	Color       constant.Color      `inject:"color"`
-	Admins      map[string]bool     `inject:"admins"`
-	SuperAdmins map[string]bool     `inject:"superAdmins"`
+	Conf        *config.Config  `inject:"config"`
+	Discord     *discord.App    `inject:"discord"`
+	Cache       cache.Service   `inject:"cache"`
+	SettingKey  gorm.SettingKey `inject:"settingKey"`
+	RedisKey    redis.RedisKey  `inject:"redisKey"`
+	Admins      map[string]bool `inject:"admins"`
+	SuperAdmins map[string]bool `inject:"superAdmins"`
 	cmdList     []*discordgo.ApplicationCommand
 
 	SettingRepository setting.Repository `inject:"settingRepository"`

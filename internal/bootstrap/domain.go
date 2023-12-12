@@ -1,6 +1,6 @@
 package bootstrap
 
-import "devteambot/internal/adapter/repository/sql"
+import "devteambot/internal/adapter/repository/gorm"
 
 func RegisterDomain() {
 	RegisterSetting()
@@ -9,13 +9,13 @@ func RegisterDomain() {
 }
 
 func RegisterSetting() {
-	appContainer.RegisterService("settingRepository", new(sql.SettingRepository))
+	appContainer.RegisterService("settingRepository", new(gorm.SettingRepository))
 }
 
 func RegisterReview() {
-	appContainer.RegisterService("reviewRepository", new(sql.ReviewRepository))
+	appContainer.RegisterService("reviewRepository", new(gorm.ReviewRepository))
 }
 
 func RegisterPoint() {
-	appContainer.RegisterService("pointRepository", new(sql.PointRepository))
+	appContainer.RegisterService("pointRepository", new(gorm.PointRepository))
 }

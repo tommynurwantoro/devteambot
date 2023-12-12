@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"devteambot/internal/pkg/constant"
 	"devteambot/internal/pkg/logger"
 
 	"github.com/bwmarrin/discordgo"
@@ -45,7 +46,7 @@ func (c *CommandSuperAdmin) SendEmbed(s *discordgo.Session, i *discordgo.Interac
 		Embeds: []*discordgo.MessageEmbed{
 			{
 				Title:       title,
-				Color:       c.Command.Color.Blue,
+				Color:       constant.BLUE,
 				Description: content,
 				Thumbnail: &discordgo.MessageEmbedThumbnail{
 					URL: thumbnail,

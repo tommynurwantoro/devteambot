@@ -9,11 +9,6 @@ import (
 
 	"devteambot/config"
 	"devteambot/internal/adapter/rest"
-	"devteambot/internal/adapter/scheduler"
-	"devteambot/internal/application/commands"
-	commandsuperadmin "devteambot/internal/application/commands/superadmin"
-	"devteambot/internal/application/events"
-	"devteambot/internal/constant"
 	"devteambot/internal/pkg/container"
 	"devteambot/internal/pkg/logger"
 
@@ -43,25 +38,21 @@ func Run(conf *config.Config) {
 	appContainer.RegisterService("superAdmins", superAdmins)
 	appContainer.RegisterService("admins", admins)
 
-	appContainer.RegisterService("redisKey", constant.NewRedisKey())
-	appContainer.RegisterService("settingKey", constant.NewSettingKey())
-	appContainer.RegisterService("color", constant.NewColor())
-
 	// Dependency Injection
+	// Adapter
 	RegisterDatabase()
 	RegisterCache()
 	RegisterDomain()
 	RegisterDiscord()
 	RegisterResty()
 	RegisterRest()
+
+	// Application
 	RegisterService()
 	RegisterAPI()
+	RegisterCommand()
 
-	appContainer.RegisterService("baseCommand", new(commands.Command))
-	appContainer.RegisterService("commandSuperAdmin", new(commandsuperadmin.CommandSuperAdmin))
-	appContainer.RegisterService("event", new(events.Event))
-
-	appContainer.RegisterService("scheduler", new(scheduler.Scheduler))
+	// appContainer.RegisterService("scheduler", new(scheduler.Scheduler))
 
 	// Check service readiness
 	if err := appContainer.Ready(); err != nil {

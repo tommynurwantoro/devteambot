@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"devteambot/internal/pkg/constant"
 	"devteambot/internal/pkg/logger"
 	"fmt"
 	"strings"
@@ -76,7 +77,7 @@ func (c *Command) ThanksLeaderboard(s *discordgo.Session, i *discordgo.Interacti
 				Inline: true,
 			},
 		}
-		embed.Color = c.Color.Green
+		embed.Color = constant.GREEN
 
 		message.Embeds = append(message.Embeds, embed)
 	}

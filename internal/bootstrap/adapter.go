@@ -3,16 +3,20 @@ package bootstrap
 import (
 	"devteambot/internal/adapter/discord"
 	"devteambot/internal/adapter/repository"
+	"devteambot/internal/adapter/repository/gorm"
+	"devteambot/internal/adapter/repository/redis"
 	"devteambot/internal/adapter/rest"
 	"devteambot/internal/adapter/resty"
 )
 
 func RegisterDatabase() {
 	appContainer.RegisterService("database", new(repository.Gorm))
+	appContainer.RegisterService("settingKey", gorm.NewSettingKey())
 }
 
 func RegisterCache() {
 	appContainer.RegisterService("cache", new(repository.Cache))
+	appContainer.RegisterService("redisKey", redis.NewRedisKey())
 }
 
 func RegisterRest() {

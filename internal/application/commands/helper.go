@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"devteambot/internal/pkg/constant"
 	"devteambot/internal/pkg/logger"
 
 	"github.com/bwmarrin/discordgo"
@@ -67,7 +68,7 @@ func (c *Command) AssignRole(s *discordgo.Session, i *discordgo.InteractionCreat
 			Content: fmt.Sprintf("<@%s>", i.Member.User.ID),
 			Embeds: []*discordgo.MessageEmbed{
 				{
-					Color:       c.Color.Green,
+					Color:       constant.GREEN,
 					Description: response,
 					Author: &discordgo.MessageEmbedAuthor{
 						Name:    i.Member.User.Username,
