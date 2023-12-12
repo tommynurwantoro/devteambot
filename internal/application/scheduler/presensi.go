@@ -2,21 +2,13 @@ package scheduler
 
 import (
 	"context"
-	"devteambot/internal/adapter/discord"
-	"devteambot/internal/adapter/repository/gorm"
-	"devteambot/internal/domain/setting"
-	"devteambot/internal/pkg/logger"
-	"encoding/json"
-	"fmt"
-	"strings"
+	"devteambot/internal/domain/presensi"
 	"time"
 )
 
 type PresensiScheduler struct {
-	Scheduler         *Scheduler         `inject:"scheduler"`
-	Discord           *discord.App       `inject:"discord"`
-	SettingKey        gorm.SettingKey    `inject:"settingKey"`
-	SettingRepository setting.Repository `inject:"settingRepository"`
+	Scheduler       *Scheduler       `inject:"scheduler"`
+	PresensiService presensi.Service `inject:"presensiService"`
 }
 
 func (s *PresensiScheduler) Startup() error {
@@ -28,7 +20,7 @@ func (s *PresensiScheduler) Startup() error {
 			return
 		}
 
-		s.SendReminderPresensi(context.Background())
+		s.PresensiService.SendReminderPresensi(context.Background())
 	})
 
 	s.Scheduler.Every(1).Day().At("17:05").Do(func() {
@@ -37,37 +29,10 @@ func (s *PresensiScheduler) Startup() error {
 			return
 		}
 
-		s.SendReminderPresensi(context.Background())
+		s.PresensiService.SendReminderPresensi(context.Background())
 	})
 
 	return nil
 }
 
 func (s *PresensiScheduler) Shutdown() error { return nil }
-
-func (s *PresensiScheduler) SendReminderPresensi(ctx context.Context) {
-	settings, err := s.SettingRepository.GetAllByKey(ctx, s.SettingKey.ReminderPresensi())
-	if err != nil {
-		return
-	}
-
-	if len(settings) == 0 {
-		return
-	}
-
-	for _, set := range settings {
-		var val, channelID, roleID string
-		err = json.Unmarshal([]byte(set.Value), &val)
-		if err != nil {
-			logger.Error("Error: "+err.Error(), err)
-			return
-		}
-
-		split := strings.Split(val, "|")
-		channelID = split[0]
-		roleID = split[1]
-
-		logger.Info("Send reminder presensi")
-		s.Discord.Bot.ChannelMessageSend(channelID, fmt.Sprintf("Jangan lupa melakukan presensi <@&%s> !", roleID))
-	}
-}
