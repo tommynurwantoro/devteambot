@@ -8,9 +8,9 @@ type Api struct {
 }
 
 func (a *Api) Startup() error {
-	v1 := a.Rest.Group("/v1")
-	v1.Post("/get-sholat-schedule", a.SholatHandler.GetSholatSchedule)
-	v1.Post("/send-reminder-sholat", a.SholatHandler.SendReminderSholat)
+	// v1 := a.Rest.Group("/v1")
+	// v1.Post("/get-sholat-schedule", a.SholatHandler.GetSholatSchedule)
+	// v1.Post("/send-reminder-sholat", a.SholatHandler.SendReminderSholat)
 
 	return nil
 }
