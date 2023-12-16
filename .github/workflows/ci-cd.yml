@@ -40,4 +40,4 @@ jobs:
           KEY: ${{ secrets.SSHKEY }}
           script: |
             cd /home/kidyagami
-            ./deploy-devteambot.sh
+            ./startup-devteambot.sh
