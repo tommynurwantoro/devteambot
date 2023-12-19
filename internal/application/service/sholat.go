@@ -16,12 +16,12 @@ import (
 )
 
 type SholatService struct {
-	MyQuranAPI        *resty.MyQuran     `inject:"myQuranAPI"`
-	Cache             cache.Service      `inject:"cache"`
-	App               *discord.App       `inject:"discord"`
-	SettingRepository setting.Repository `inject:"settingRepository"`
-	RedisKey          redis.RedisKey     `inject:"redisKey"`
-	SettingKey        gorm.SettingKey    `inject:"settingKey"`
+	API               *resty.JadwalSholatOrg `inject:"jadwalSholatOrgAPI"`
+	Cache             cache.Service          `inject:"cache"`
+	App               *discord.App           `inject:"discord"`
+	SettingRepository setting.Repository     `inject:"settingRepository"`
+	RedisKey          redis.RedisKey         `inject:"redisKey"`
+	SettingKey        gorm.SettingKey        `inject:"settingKey"`
 }
 
 func (s *SholatService) Startup() error { return nil }
@@ -29,20 +29,27 @@ func (s *SholatService) Startup() error { return nil }
 func (s *SholatService) Shutdown() error { return nil }
 
 func (s *SholatService) GetSholatSchedule(ctx context.Context) error {
-	response := new(resty.GetSholatResponse)
-	req := s.MyQuranAPI.Client.R().SetContext(ctx).
-		ForceContentType("application/json").
-		SetResult(response)
+	logger.Info("Get Sholat Schedule")
+	req := s.API.Client.R().SetContext(ctx).
+		ForceContentType("application/json")
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	now := time.Now().In(loc)
 
-	_, err := req.Get(fmt.Sprintf("/sholat/jadwal/1505/%d/%d/%d", now.Year(), int(now.Month()), now.Day()))
+	resp, err := req.Get(fmt.Sprintf("yogyakarta/%d/%d.json", now.Year(), int(now.Month())))
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error: %s", err.Error()), err)
 		return err
 	}
 
-	s.Cache.Put(ctx, s.RedisKey.DailySholatSchedule(), response, 24*time.Hour)
+	response := make([]resty.GetJadwalSholatResponse, 0)
+	err = json.Unmarshal(resp.Body(), &response)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error: %s", err.Error()), err)
+		return err
+	}
+
+	todaySchedule := response[now.Day()-1]
+	s.Cache.Put(ctx, s.RedisKey.DailySholatSchedule(), todaySchedule, 24*time.Hour)
 	return nil
 }
 
@@ -50,11 +57,16 @@ func (s *SholatService) SendReminderSholat(ctx context.Context) error {
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	now := time.Now().In(loc)
 
-	sholatSchedule := resty.GetSholatResponse{}
+	sholatSchedule := make([]resty.GetJadwalSholatResponse, 0)
 	s.Cache.Get(ctx, s.RedisKey.DailySholatSchedule(), &sholatSchedule)
 
+	if len(sholatSchedule) == 0 {
+		return nil
+	}
+
 	timeNow := now.Format("15:04")
-	if timeNow != sholatSchedule.Data.Jadwal.Dzuhur && timeNow != sholatSchedule.Data.Jadwal.Ashar {
+	todaySchedule := sholatSchedule[now.Day()-1]
+	if timeNow != todaySchedule.Dzuhur && timeNow != todaySchedule.Ashar {
 		return nil
 	}
 

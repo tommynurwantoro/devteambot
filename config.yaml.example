@@ -33,3 +33,11 @@ redis:
   address: ${REDIS_ADDRESS}
   port: ${REDIS_PORT}
   password: ${REDIS_PASSWORD}
+
+schedulers:
+  - get-sholat-schedule:
+      enable: false
+      time: "03:00"
+  - send-reminder-sholat:
+      enable: true
+      time: ""

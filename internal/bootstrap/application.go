@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"devteambot/config"
 	"devteambot/internal/application/api"
 	"devteambot/internal/application/commands"
 	commandsuperadmin "devteambot/internal/application/commands/superadmin"
@@ -8,7 +9,7 @@ import (
 	"devteambot/internal/application/scheduler"
 )
 
-func RegisterScheduler() {
+func RegisterScheduler(conf *config.Config) {
 	appContainer.RegisterService("scheduler", new(scheduler.Scheduler))
 
 	appContainer.RegisterService("presensiScheduler", new(scheduler.PresensiScheduler))

@@ -51,9 +51,7 @@ func Run(conf *config.Config) {
 	// Application
 	RegisterAPI()
 	RegisterCommand()
-	RegisterScheduler()
-
-	// appContainer.RegisterService("scheduler", new(scheduler.Scheduler))
+	RegisterScheduler(conf)
 
 	// Check service readiness
 	if err := appContainer.Ready(); err != nil {

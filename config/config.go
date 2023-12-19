@@ -5,15 +5,16 @@ import (
 )
 
 type Config struct {
-	AppName       string        `valid:"required"`
-	AppVersion    string        `valid:"required"`
-	Environment   string        `valid:"required"`
-	ShutdownDelay time.Duration `valid:"required"`
-	Http          HttpConfig    `valid:"required"`
-	Logger        Logger        `valid:"required"`
-	Database      Database      `valid:"required"`
-	Redis         Redis         `valid:"required"`
-	Discord       Discord       `valid:"required"`
+	AppName       string               `valid:"required"`
+	AppVersion    string               `valid:"required"`
+	Environment   string               `valid:"required"`
+	ShutdownDelay time.Duration        `valid:"required"`
+	Http          HttpConfig           `valid:"required"`
+	Logger        Logger               `valid:"required"`
+	Database      Database             `valid:"required"`
+	Redis         Redis                `valid:"required"`
+	Discord       Discord              `valid:"required"`
+	Schedulers    map[string]Scheduler `valid:"required"`
 }
 
 type HttpConfig struct {
@@ -55,4 +56,9 @@ type Redis struct {
 	Address  string `valid:"required"`
 	Port     int    `valid:"required"`
 	Password string
+}
+
+type Scheduler struct {
+	Enable bool
+	Time   string
 }
