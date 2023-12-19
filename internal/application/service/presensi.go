@@ -21,7 +21,7 @@ func (s *PresensiService) Startup() error { return nil }
 
 func (s *PresensiService) Shutdown() error { return nil }
 
-func (s *PresensiService) SendReminderPresensi(ctx context.Context) error {
+func (s *PresensiService) SendReminder(ctx context.Context) error {
 	settings, err := s.SettingRepository.GetAllByKey(ctx, s.SettingKey.ReminderPresensi())
 	if err != nil {
 		return err

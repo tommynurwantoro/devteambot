@@ -28,7 +28,7 @@ func (s *SholatService) Startup() error { return nil }
 
 func (s *SholatService) Shutdown() error { return nil }
 
-func (s *SholatService) GetSholatSchedule(ctx context.Context) error {
+func (s *SholatService) GetTodaySchedule(ctx context.Context) error {
 	logger.Info("Get Sholat Schedule")
 	req := s.API.Client.R().SetContext(ctx).
 		ForceContentType("application/json")
@@ -53,7 +53,7 @@ func (s *SholatService) GetSholatSchedule(ctx context.Context) error {
 	return nil
 }
 
-func (s *SholatService) SendReminderSholat(ctx context.Context) error {
+func (s *SholatService) SendReminder(ctx context.Context) error {
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	now := time.Now().In(loc)
 
