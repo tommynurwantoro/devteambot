@@ -24,8 +24,11 @@ type HttpConfig struct {
 }
 
 type Logger struct {
-	Stdout       bool
-	FileLocation string `valid:"required"`
+	Stdout        bool
+	FileLocation  string `valid:"required"`
+	FileMaxSize   int    `valid:"required"`
+	FileMaxBackup int    `valid:"required"`
+	FileMaxAge    int    `valid:"required"`
 }
 
 type Discord struct {

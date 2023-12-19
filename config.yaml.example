@@ -9,8 +9,11 @@ http:
   readTimeout: 15 # in seconds
 
 logger:
-  stdout: true
   fileLocation: logs/devteambot.log
+  fileMaxSize: 50 # megabytes
+  fileMaxBackup: 10
+  fileMaxAge: 30 # days
+  stdout: true
 
 database:
   host: 127.0.0.1

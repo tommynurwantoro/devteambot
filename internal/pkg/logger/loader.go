@@ -9,9 +9,9 @@ var (
 	singleton Log
 )
 
-func Load(env string) Log {
+func Load(conf Config) Log {
 	once.Do(func() {
-		singleton = NewLogger(env)
+		singleton = NewLogger(conf)
 	})
 
 	return singleton

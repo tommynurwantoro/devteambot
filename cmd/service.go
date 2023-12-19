@@ -24,7 +24,19 @@ var commandService = &cobra.Command{
 		if !ok {
 			log.Fatal("Something went wrong when populating config")
 		}
-		logger.Load(newConfig.Environment)
+
+		loggerConfig := logger.Config{
+			App:           newConfig.AppName,
+			AppVer:        newConfig.AppVersion,
+			Env:           newConfig.Environment,
+			FileLocation:  newConfig.Logger.FileLocation,
+			FileMaxSize:   newConfig.Logger.FileMaxAge,
+			FileMaxBackup: newConfig.Logger.FileMaxBackup,
+			FileMaxAge:    newConfig.Logger.FileMaxAge,
+			Stdout:        newConfig.Logger.Stdout,
+		}
+
+		logger.Load(loggerConfig)
 		bootstrap.Run(newConfig)
 	},
 }

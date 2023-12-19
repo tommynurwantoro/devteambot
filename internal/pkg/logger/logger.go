@@ -1,7 +1,12 @@
 package logger
 
 import (
+	"os"
+	"time"
+
+	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Logger struct {
@@ -16,12 +21,51 @@ type Log interface {
 	Panic(message string, err error)
 }
 
-func NewLogger(env string) *Logger {
-	log, _ := zap.NewDevelopment(zap.AddCallerSkip(2))
-
-	if env == "production" {
-		log, _ = zap.NewProduction(zap.AddCallerSkip(2))
+func NewLogger(conf Config) *Logger {
+	rotator := &lumberjack.Logger{
+		Filename:   conf.FileLocation,
+		MaxSize:    conf.FileMaxSize, // megabytes
+		MaxBackups: conf.FileMaxBackup,
+		MaxAge:     conf.FileMaxAge, // days
 	}
+
+	encoderConfig := zap.NewDevelopmentEncoderConfig()
+
+	if conf.Env == "production" {
+		encoderConfig = zap.NewProductionEncoderConfig()
+	}
+
+	encoderConfig.TimeKey = "timestamp"
+	encoderConfig.LevelKey = "logLevel"
+	encoderConfig.MessageKey = "message"
+	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+
+	jsonEncoder := zapcore.NewJSONEncoder(encoderConfig)
+	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
+
+	core := zapcore.NewCore(
+		jsonEncoder,
+		zapcore.AddSync(rotator),
+		zap.NewAtomicLevelAt(zap.InfoLevel),
+	)
+
+	if conf.Stdout {
+		core = zapcore.NewTee(
+			core,
+			zapcore.NewCore(
+				consoleEncoder,
+				zapcore.AddSync(os.Stdout),
+				zap.NewAtomicLevelAt(zap.InfoLevel),
+			),
+		)
+	}
+
+	log := zap.New(core).With(
+		zap.String("app", conf.App),
+		zap.String("appVer", conf.AppVer),
+		zap.String("env", conf.Env),
+	)
 
 	return &Logger{log}
 }
