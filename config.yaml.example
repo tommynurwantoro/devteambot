@@ -35,9 +35,18 @@ redis:
   password: ${REDIS_PASSWORD}
 
 schedulers:
-  - get-sholat-schedule:
-      enable: false
+  - sholat-get-today-schedule:
+      enable: true
       time: "03:00"
-  - send-reminder-sholat:
+  - sholat-send-reminder:
       enable: true
       time: ""
+  - presensi-send-reminder-pagi:
+      enable: true
+      time: "07:55"
+  - presensi-send-reminder-sore:
+      enable: true
+      time: "17:05"
+  - point-reset-quota:
+      enable: true
+      time: "0 0 * * 1"

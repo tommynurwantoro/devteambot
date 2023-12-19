@@ -3,5 +3,5 @@ package presensi
 import "context"
 
 type Service interface {
-	SendReminderPresensi(ctx context.Context) error
+	SendReminder(ctx context.Context) error
 }

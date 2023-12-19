@@ -16,7 +16,7 @@ type SholatHandler struct {
 }
 
 func (h *SholatHandler) GetSholatSchedule(c *fiber.Ctx) error {
-	err := h.Service.GetSholatSchedule(c.Context())
+	err := h.Service.GetTodaySchedule(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to get sholat schedule",
@@ -30,7 +30,7 @@ func (h *SholatHandler) GetSholatSchedule(c *fiber.Ctx) error {
 }
 
 func (h *SholatHandler) SendReminderSholat(c *fiber.Ctx) error {
-	err := h.Service.SendReminderSholat(c.Context())
+	err := h.Service.SendReminder(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to send reminder sholat",

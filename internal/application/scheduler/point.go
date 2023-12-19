@@ -2,19 +2,26 @@ package scheduler
 
 import (
 	"context"
+	"devteambot/config"
 	"devteambot/internal/domain/point"
+	"devteambot/internal/pkg/logger"
 )
 
 type PoinScheduler struct {
-	Scheduler    *Scheduler    `inject:"scheduler"`
-	PointService point.Service `inject:"pointService"`
+	Scheduler    *Scheduler     `inject:"scheduler"`
+	Config       *config.Config `inject:"config"`
+	PointService point.Service  `inject:"pointService"`
 }
 
 func (s *PoinScheduler) Startup() error {
-	// Every Monday 00:00
-	s.Scheduler.Cron("0 0 * * 1").Do(func() {
-		s.PointService.ResetQuota(context.Background())
-	})
+	conf, ok := s.Config.Schedulers["point-reset-quota"]
+	if ok && conf.Enable {
+		// Every Monday 00:00
+		s.Scheduler.Cron(conf.Time).Do(func() {
+			s.PointService.ResetQuota(context.Background())
+		})
+		logger.Info("Point: Reset Quota is enabled")
+	}
 
 	return nil
 }

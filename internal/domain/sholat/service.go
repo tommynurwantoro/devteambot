@@ -3,6 +3,6 @@ package sholat
 import "context"
 
 type Service interface {
-	GetSholatSchedule(ctx context.Context) error
-	SendReminderSholat(ctx context.Context) error
+	GetTodaySchedule(ctx context.Context) error
+	SendReminder(ctx context.Context) error
 }
