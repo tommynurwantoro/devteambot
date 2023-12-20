@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/cache"
 	"devteambot/internal/pkg/logger"
 	"fmt"
@@ -42,7 +43,7 @@ func (c *Command) Thanks(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 
 	var pointLogChannel string
-	if err := c.SettingRepository.GetByKey(ctx, i.GuildID, c.SettingKey.PointLogChannel(), &pointLogChannel); err != nil {
+	if err := c.SettingRepository.GetByKey(ctx, i.GuildID, setting.POINT_LOG_CHANNEL, &pointLogChannel); err != nil {
 		response = "Something went wrong, please try again later"
 		c.SendStandardResponse(i.Interaction, response, true, false)
 		logger.Error(err.Error(), err)

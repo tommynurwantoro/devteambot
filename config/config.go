@@ -63,5 +63,9 @@ type Redis struct {
 
 type Scheduler struct {
 	Enable bool
-	Time   string
+	Time   struct {
+		Hour   uint
+		Minute uint
+		Second uint
+	}
 }

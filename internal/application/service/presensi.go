@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"devteambot/internal/adapter/discord"
-	"devteambot/internal/adapter/repository/gorm"
 	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/logger"
 	"encoding/json"
@@ -13,7 +12,6 @@ import (
 
 type PresensiService struct {
 	Discord           *discord.App       `inject:"discord"`
-	SettingKey        gorm.SettingKey    `inject:"settingKey"`
 	SettingRepository setting.Repository `inject:"settingRepository"`
 }
 
@@ -22,7 +20,7 @@ func (s *PresensiService) Startup() error { return nil }
 func (s *PresensiService) Shutdown() error { return nil }
 
 func (s *PresensiService) SendReminder(ctx context.Context) error {
-	settings, err := s.SettingRepository.GetAllByKey(ctx, s.SettingKey.ReminderPresensi())
+	settings, err := s.SettingRepository.GetAllByKey(ctx, setting.REMINDER_PRESENSI)
 	if err != nil {
 		return err
 	}

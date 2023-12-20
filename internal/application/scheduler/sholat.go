@@ -6,6 +6,8 @@ import (
 	"devteambot/internal/domain/sholat"
 	"devteambot/internal/pkg/logger"
 	"time"
+
+	"github.com/go-co-op/gocron/v2"
 )
 
 type SholatScheduler struct {
@@ -19,21 +21,33 @@ func (s *SholatScheduler) Startup() error {
 
 	conf, ok := s.Config.Schedulers["sholat-get-today-schedule"]
 	if ok && conf.Enable {
-		s.Scheduler.Every(1).Day().At(conf.Time).Do(func() {
-			s.SholatService.GetTodaySchedule(context.Background())
-		})
+		s.Scheduler.NewJob(
+			gocron.DailyJob(
+				1,
+				gocron.NewAtTimes(
+					gocron.NewAtTime(conf.Time.Hour, conf.Time.Minute, conf.Time.Second),
+				),
+			),
+			gocron.NewTask(s.SholatService.GetTodaySchedule, context.Background()),
+		)
 		logger.Info("Sholat: Get Today Schedule is enabled")
 	}
 
 	conf, ok = s.Config.Schedulers["sholat-send-reminder"]
 	if ok && conf.Enable {
-		s.Scheduler.Every(1).Minute().Do(func() {
-			now := time.Now().In(loc)
-			if now.Weekday() == time.Saturday || now.Weekday() == time.Sunday {
-				return
-			}
-			s.SholatService.SendReminder(context.Background())
-		})
+		s.Scheduler.NewJob(
+			gocron.DurationJob(
+				1*time.Minute,
+			),
+			gocron.NewTask(
+				func() {
+					if time.Now().In(loc).Weekday() == time.Saturday || time.Now().In(loc).Weekday() == time.Sunday {
+						return
+					}
+					s.SholatService.SendReminder(context.Background())
+				},
+			),
+		)
 		logger.Info("Sholat: Send Reminder is enabled")
 	}
 

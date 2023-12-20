@@ -15,7 +15,7 @@ func RegisterDomain() {
 
 func RegisterSetting() {
 	appContainer.RegisterService("settingRepository", new(gorm.SettingRepository))
-	appContainer.RegisterService("settingKey", gorm.NewSettingKey())
+	appContainer.RegisterService("settingService", new(service.SettingService))
 }
 
 func RegisterReview() {

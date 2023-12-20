@@ -14,6 +14,7 @@ type CommandSuperAdmin struct {
 	cmdList []*discordgo.ApplicationCommand
 
 	SettingRepository setting.Repository `inject:"settingRepository"`
+	SettingService    setting.Service    `inject:"settingService"`
 }
 
 func (c *CommandSuperAdmin) Startup() error {
@@ -258,6 +259,14 @@ func (c *CommandSuperAdmin) HandleCommand(s *discordgo.Session, i *discordgo.Int
 			return
 		case "activate_point_feature":
 			c.ActivatePoint(s, i)
+			return
+		}
+	}
+
+	if i.Type == discordgo.InteractionModalSubmit {
+		switch i.ModalSubmitData().CustomID {
+		case "setup_superadmin":
+			c.SetupSuperAdmin(s, i)
 			return
 		}
 	}

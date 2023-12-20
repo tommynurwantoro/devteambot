@@ -8,13 +8,13 @@ func (c *CommandSuperAdmin) Setup(s *discordgo.Session, i *discordgo.Interaction
 	c.Command.Discord.Bot.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseModal,
 		Data: &discordgo.InteractionResponseData{
-			CustomID: "modal_setup",
+			CustomID: "setup_superadmin",
 			Title:    "Insert Admin Role ID",
 			Components: []discordgo.MessageComponent{
 				discordgo.ActionsRow{
 					Components: []discordgo.MessageComponent{
 						discordgo.TextInput{
-							CustomID:    "setup_superadmin",
+							CustomID:    "insert_role_id",
 							Label:       "Please insert super admin role id",
 							Style:       discordgo.TextInputShort,
 							Placeholder: "982659357953118208,757119647102271588",

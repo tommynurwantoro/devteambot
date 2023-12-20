@@ -40,16 +40,27 @@ redis:
 schedulers:
   - sholat-get-today-schedule:
       enable: true
-      time: "03:00"
+      time:
+        hour: 3
+        minute: 0
+        second: 0
   - sholat-send-reminder:
       enable: true
-      time: ""
   - presensi-send-reminder-pagi:
       enable: true
-      time: "07:55"
+      time:
+        hour: 7
+        minute: 55
+        second: 0
   - presensi-send-reminder-sore:
       enable: true
-      time: "17:05"
+      time:
+        hour: 17
+        minute: 5
+        second: 0
   - point-reset-quota:
       enable: true
-      time: "0 0 * * 1"
+      time:
+        hour: 0
+        minute: 0
+        second: 0

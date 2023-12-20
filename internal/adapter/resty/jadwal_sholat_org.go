@@ -23,7 +23,7 @@ type GetJadwalSholatResponse struct {
 	Terbit  string `json:"terbit"`
 	Dhuha   string `json:"dhuha"`
 	Dzuhur  string `json:"dzuhur"`
-	Ashar   string `json:"ashar"`
-	Maghrib string `json:"maghrib"`
+	Ashar   string `json:"ashr"`
+	Maghrib string `json:"magrib"`
 	Isya    string `json:"isya"`
 }

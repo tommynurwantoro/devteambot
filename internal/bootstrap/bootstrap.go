@@ -70,7 +70,7 @@ func Run(conf *config.Config) {
 	sched := appContainer.GetServiceOrNil("scheduler").(*scheduler.Scheduler)
 	go func() {
 		logger.Info("Starting scheduler...")
-		sched.StartAsync()
+		sched.Start()
 		logger.Info("Scheduler started")
 	}()
 

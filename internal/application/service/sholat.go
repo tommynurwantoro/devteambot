@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"devteambot/internal/adapter/discord"
-	"devteambot/internal/adapter/repository/gorm"
 	"devteambot/internal/adapter/repository/redis"
 	"devteambot/internal/adapter/resty"
 	"devteambot/internal/domain/setting"
@@ -21,7 +20,6 @@ type SholatService struct {
 	App               *discord.App           `inject:"discord"`
 	SettingRepository setting.Repository     `inject:"settingRepository"`
 	RedisKey          redis.RedisKey         `inject:"redisKey"`
-	SettingKey        gorm.SettingKey        `inject:"settingKey"`
 }
 
 func (s *SholatService) Startup() error { return nil }
@@ -57,20 +55,15 @@ func (s *SholatService) SendReminder(ctx context.Context) error {
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	now := time.Now().In(loc)
 
-	sholatSchedule := make([]resty.GetJadwalSholatResponse, 0)
-	s.Cache.Get(ctx, s.RedisKey.DailySholatSchedule(), &sholatSchedule)
-
-	if len(sholatSchedule) == 0 {
-		return nil
-	}
+	var todaySchedule resty.GetJadwalSholatResponse
+	s.Cache.Get(ctx, s.RedisKey.DailySholatSchedule(), &todaySchedule)
 
 	timeNow := now.Format("15:04")
-	todaySchedule := sholatSchedule[now.Day()-1]
 	if timeNow != todaySchedule.Dzuhur && timeNow != todaySchedule.Ashar {
 		return nil
 	}
 
-	settings, err := s.SettingRepository.GetAllByKey(ctx, s.SettingKey.ReminderSholat())
+	settings, err := s.SettingRepository.GetAllByKey(ctx, setting.REMINDER_SHOLAT)
 	if err != nil {
 		return err
 	}
