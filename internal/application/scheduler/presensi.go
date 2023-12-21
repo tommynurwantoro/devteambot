@@ -33,7 +33,11 @@ func (s *PresensiScheduler) Startup() error {
 					),
 				),
 			),
-			gocron.NewTask(s.PresensiService.SendReminder, context.Background()),
+			gocron.NewTask(
+				func() {
+					s.PresensiService.SendReminder(context.Background())
+				},
+			),
 		)
 		logger.Info("Presensi: Send Reminder Pagi is enabled")
 	}

@@ -26,7 +26,11 @@ func (s *PoinScheduler) Startup() error {
 				gocron.NewWeekdays(time.Monday),
 				gocron.NewAtTimes(gocron.NewAtTime(conf.Time.Hour, conf.Time.Minute, conf.Time.Second)),
 			),
-			gocron.NewTask(s.PointService.ResetQuota, context.Background()),
+			gocron.NewTask(
+				func() {
+					s.PointService.ResetQuota(context.Background())
+				},
+			),
 		)
 		logger.Info("Point: Reset Quota is enabled")
 	}
