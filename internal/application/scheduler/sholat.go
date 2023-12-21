@@ -5,6 +5,7 @@ import (
 	"devteambot/config"
 	"devteambot/internal/domain/sholat"
 	"devteambot/internal/pkg/logger"
+	"fmt"
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
@@ -41,6 +42,7 @@ func (s *SholatScheduler) Startup() error {
 			),
 			gocron.NewTask(
 				func() {
+					logger.Info(fmt.Sprintf("Sholat: Send Reminder is running at %s", time.Now().In(loc).Format("2006-01-02 15:04:05")))
 					if time.Now().In(loc).Weekday() == time.Saturday || time.Now().In(loc).Weekday() == time.Sunday {
 						return
 					}
