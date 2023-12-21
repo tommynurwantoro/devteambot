@@ -28,7 +28,11 @@ func (s *SholatScheduler) Startup() error {
 					gocron.NewAtTime(conf.Time.Hour, conf.Time.Minute, conf.Time.Second),
 				),
 			),
-			gocron.NewTask(s.SholatService.GetTodaySchedule, context.Background()),
+			gocron.NewTask(
+				func() {
+					s.SholatService.GetTodaySchedule(context.Background())
+				},
+			),
 		)
 		logger.Info("Sholat: Get Today Schedule is enabled")
 	}
