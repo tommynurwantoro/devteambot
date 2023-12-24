@@ -79,11 +79,11 @@ func (l *Logger) Warning(message string) {
 }
 
 func (l *Logger) Error(message string, err error) {
-	l.log.Error(message)
+	l.log.Error(message, zap.Error(err))
 }
 
 func (l *Logger) Fatal(message string, err error) {
-	l.log.Fatal(message)
+	l.log.Fatal(message, zap.Error(err))
 }
 
 func (l *Logger) Panic(message string, err error) {

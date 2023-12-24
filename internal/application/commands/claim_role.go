@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"devteambot/internal/pkg/logger"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -20,7 +21,8 @@ func (c *Command) ClaimRole(s *discordgo.Session, i *discordgo.InteractionCreate
 	member, err := s.GuildMember(i.GuildID, i.Member.User.ID)
 	if err != nil {
 		response = "Something went wrong, please try again later"
-		c.SendStandardResponse(i.Interaction, response, true, false)
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
@@ -32,12 +34,13 @@ func (c *Command) ClaimRole(s *discordgo.Session, i *discordgo.InteractionCreate
 	}
 
 	if found {
-		s.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, roleID)
+		if err = s.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, roleID); err != nil {
+		}
 		response = "Success to remove role"
 	} else {
 		s.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, roleID)
 		response = "Success to add role"
 	}
 
-	c.SendStandardResponse(i.Interaction, response, true, false)
+	c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 }

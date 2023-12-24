@@ -30,3 +30,7 @@ func (s *PointService) ResetQuota(ctx context.Context) error {
 	logger.Info("Limit has been reset")
 	return nil
 }
+
+// func (s PointService) GetTopTen(ctx context.Context) ([]string, error) {
+
+// }

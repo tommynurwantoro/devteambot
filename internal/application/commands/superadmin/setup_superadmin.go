@@ -12,10 +12,9 @@ func (c *CommandSuperAdmin) SetupSuperAdmin(s *discordgo.Session, i *discordgo.I
 
 	err := c.SettingService.SetSuperAdmin(context.Background(), i.GuildID, userIDs)
 	if err != nil {
-		c.Command.SendStandardResponse(i.Interaction, "Something went wrong, please try again later", true, false)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, "Something went wrong, please try again later", true, false)
 		return
 	}
 
-	c.Command.SendStandardResponse(i.Interaction, "Success to set super admin.", true, false)
-	return
+	c.Command.MessageService.SendStandardResponse(i.Interaction, "Success to set super admin.", true, false)
 }

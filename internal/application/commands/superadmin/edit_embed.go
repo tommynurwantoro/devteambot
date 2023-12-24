@@ -18,9 +18,9 @@ func (c *CommandSuperAdmin) EditEmbed(s *discordgo.Session, i *discordgo.Interac
 		}
 
 		// Admin only
-		if !c.Command.IsSuperAdmin(ctx, i.Interaction) {
+		if !c.Command.SettingService.IsSuperAdmin(ctx, i.GuildID, i.Member.Roles) {
 			response := "This command is only for super admin"
-			c.Command.SendStandardResponse(i.Interaction, response, true, false)
+			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 			return
 		}
 
@@ -53,7 +53,7 @@ func (c *CommandSuperAdmin) EditEmbed(s *discordgo.Session, i *discordgo.Interac
 		if err != nil {
 			logger.Error(err.Error(), err)
 			response = "Something went wrong, please try again later"
-			c.Command.SendStandardResponse(i.Interaction, response, true, false)
+			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 			return
 		}
 
@@ -87,11 +87,11 @@ func (c *CommandSuperAdmin) EditEmbed(s *discordgo.Session, i *discordgo.Interac
 		if err != nil {
 			logger.Error(err.Error(), err)
 			response = "Failed to edit embed"
-			c.Command.SendStandardResponse(i.Interaction, response, true, false)
+			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 			return
 		}
 
 		response = "Success to edit embed"
-		c.Command.SendStandardResponse(i.Interaction, response, true, false)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 	}
 }

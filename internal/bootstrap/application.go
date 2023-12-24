@@ -19,7 +19,6 @@ func RegisterScheduler(conf *config.Config) {
 
 func RegisterAPI() {
 	appContainer.RegisterService("api", new(api.Api))
-	appContainer.RegisterService("sholatHandler", new(api.SholatHandler))
 }
 
 func RegisterCommand() {

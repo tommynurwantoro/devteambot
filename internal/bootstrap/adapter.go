@@ -26,6 +26,5 @@ func RegisterDiscord() {
 }
 
 func RegisterResty() {
-	appContainer.RegisterService("myQuranAPI", new(resty.MyQuran))
 	appContainer.RegisterService("jadwalSholatOrgAPI", new(resty.JadwalSholatOrg))
 }

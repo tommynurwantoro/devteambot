@@ -1,85 +1,78 @@
 package commands
 
 import (
-	"context"
-	"devteambot/internal/domain/setting"
-	"devteambot/internal/pkg/cache"
-	"devteambot/internal/pkg/logger"
-	"fmt"
-	"strings"
-
 	"github.com/bwmarrin/discordgo"
 )
 
 func (c *Command) Thanks(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	var response string
-	ctx := context.Background()
+	// var response string
+	// ctx := context.Background()
 
-	options := i.ApplicationCommandData().Options
+	// options := i.ApplicationCommandData().Options
 
-	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-	for _, option := range options {
-		optionMap[option.Name] = option
-	}
+	// optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+	// for _, option := range options {
+	// 	optionMap[option.Name] = option
+	// }
 
-	var to, core, reason string
+	// var to, core, reason string
 
-	if opt, ok := optionMap["to"]; ok {
-		to = opt.UserValue(s).ID
-	}
+	// if opt, ok := optionMap["to"]; ok {
+	// 	to = opt.UserValue(s).ID
+	// }
 
-	if opt, ok := optionMap["core"]; ok {
-		core = opt.StringValue()
-	}
+	// if opt, ok := optionMap["core"]; ok {
+	// 	core = opt.StringValue()
+	// }
 
-	if opt, ok := optionMap["reason"]; ok {
-		reason = opt.StringValue()
-	}
+	// if opt, ok := optionMap["reason"]; ok {
+	// 	reason = opt.StringValue()
+	// }
 
-	if to == i.Member.User.ID {
-		response = "Tidak bisa berterima kasih ke diri sendiri"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		return
-	}
+	// if to == i.Member.User.ID {
+	// 	response = "Tidak bisa berterima kasih ke diri sendiri"
+	// 	c.SendStandardResponse(i.Interaction, response, true, false)
+	// 	return
+	// }
 
-	var pointLogChannel string
-	if err := c.SettingRepository.GetByKey(ctx, i.GuildID, setting.POINT_LOG_CHANNEL, &pointLogChannel); err != nil {
-		response = "Something went wrong, please try again later"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		logger.Error(err.Error(), err)
-		return
-	}
+	// var pointLogChannel string
+	// if err := c.SettingRepository.GetByKey(ctx, i.GuildID, setting.POINT_LOG_CHANNEL, &pointLogChannel); err != nil {
+	// 	response = "Something went wrong, please try again later"
+	// 	c.SendStandardResponse(i.Interaction, response, true, false)
+	// 	logger.Error(err.Error(), err)
+	// 	return
+	// }
 
-	if pointLogChannel == "" {
-		response = "Aktifkan fitur ini terlebih dahulu dengan command /activate_point_feature"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		return
-	}
+	// if pointLogChannel == "" {
+	// 	response = "Aktifkan fitur ini terlebih dahulu dengan command /activate_point_feature"
+	// 	c.SendStandardResponse(i.Interaction, response, true, false)
+	// 	return
+	// }
 
-	var limit int64
-	if err := c.Cache.Get(ctx, c.RedisKey.LimitThanks(i.GuildID, i.Member.User.ID), &limit); err != nil && err != cache.ErrNil {
-		response = "Something went wrong, please try again later"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		logger.Error(err.Error(), err)
-		return
-	}
+	// var limit int64
+	// if err := c.Cache.Get(ctx, c.RedisKey.LimitThanks(i.GuildID, i.Member.User.ID), &limit); err != nil && err != cache.ErrNil {
+	// 	response = "Something went wrong, please try again later"
+	// 	c.SendStandardResponse(i.Interaction, response, true, false)
+	// 	logger.Error(err.Error(), err)
+	// 	return
+	// }
 
-	if limit >= 30 {
-		response = "Limit mingguan kamu sudah habis, kamu bisa pakai command /thanks lagi mulai senin depan"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		return
-	}
+	// if limit >= 30 {
+	// 	response = "Limit mingguan kamu sudah habis, kamu bisa pakai command /thanks lagi mulai senin depan"
+	// 	c.SendStandardResponse(i.Interaction, response, true, false)
+	// 	return
+	// }
 
-	if _, err := c.PointRepository.Increase(ctx, i.GuildID, to, core, reason, 10); err != nil {
-		response = "Something went wrong, can not add rubic"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		logger.Error(err.Error(), err)
-		return
-	}
+	// if _, err := c.PointRepository.Increase(ctx, i.GuildID, to, core, reason, 10); err != nil {
+	// 	response = "Something went wrong, can not add rubic"
+	// 	c.SendStandardResponse(i.Interaction, response, true, false)
+	// 	logger.Error(err.Error(), err)
+	// 	return
+	// }
 
-	c.Cache.Increment(ctx, c.RedisKey.LimitThanks(i.GuildID, i.Member.User.ID), 10)
+	// c.Cache.Increment(ctx, c.RedisKey.LimitThanks(i.GuildID, i.Member.User.ID), 10)
 
-	c.SendStandardResponse(i.Interaction, "Success", true, false)
+	// c.SendStandardResponse(i.Interaction, "Success", true, false)
 
-	c.Discord.Bot.ChannelMessageSend(pointLogChannel, fmt.Sprintf("[%s] - <@%s> barusan kasih 10 rubic ke <@%s> karena %s", strings.ToUpper(core), i.Member.User.ID, to, reason))
+	// c.Discord.Bot.ChannelMessageSend(pointLogChannel, fmt.Sprintf("[%s] - <@%s> barusan kasih 10 rubic ke <@%s> karena %s", strings.ToUpper(core), i.Member.User.ID, to, reason))
 }

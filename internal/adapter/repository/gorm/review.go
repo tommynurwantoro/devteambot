@@ -6,10 +6,6 @@ import (
 	"devteambot/internal/domain/review"
 	"devteambot/internal/domain/sharedkernel/identity"
 	"devteambot/internal/pkg/logger"
-	"errors"
-	"fmt"
-
-	"gorm.io/gorm"
 )
 
 type ReviewRepository struct {
@@ -35,7 +31,6 @@ func (r *ReviewRepository) Create(ctx context.Context, guildID, reporter, title,
 
 	tx := r.DB.Create(&m)
 	if tx.Error != nil {
-		logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
 		return nil, tx.Error
 	}
 
@@ -45,7 +40,6 @@ func (r *ReviewRepository) Create(ctx context.Context, guildID, reporter, title,
 func (r *ReviewRepository) Update(ctx context.Context, data *review.Review) error {
 	tx := r.DB.Save(&data)
 	if tx.Error != nil {
-		logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
 		return tx.Error
 	}
 
@@ -58,10 +52,6 @@ func (r *ReviewRepository) GetByID(ctx context.Context, id identity.ID) (*review
 	var s = &review.Review{}
 	result := tx.First(s, "id = ?", id.String())
 	if result.Error != nil {
-		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		logger.Error(fmt.Sprintf("Error get by ID: %s", result.Error.Error()), result.Error)
 		return nil, result.Error
 	}
 
@@ -71,12 +61,8 @@ func (r *ReviewRepository) GetByID(ctx context.Context, id identity.ID) (*review
 func (r *ReviewRepository) GetAllPendingByGuildID(ctx context.Context, guildID string) (review.Reviews, error) {
 	reviews := make(review.Reviews, 0)
 
-	tx := r.DB.Where("guild_id = ? AND total_pending > 0", guildID).Find(&reviews).Order("created_at")
+	tx := r.DB.Where("guild_id = ? AND total_pending > 0", guildID).Order("created_at").Find(&reviews)
 	if tx.Error != nil {
-		if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return reviews, nil
-		}
-		logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
 		return nil, tx.Error
 	}
 
