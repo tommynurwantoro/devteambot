@@ -62,3 +62,9 @@ func (s *MessageService) SendEmbedResponse(i *discordgo.Interaction, content str
 		logger.Error("Error to send embed message", err)
 	}
 }
+
+func (s *MessageService) SendStandardMessage(channelID, message string) {
+	if _, err := s.App.Bot.ChannelMessageSend(channelID, message); err != nil {
+		logger.Error("Error to send message", err)
+	}
+}

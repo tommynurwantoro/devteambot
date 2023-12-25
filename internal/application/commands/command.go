@@ -5,6 +5,7 @@ import (
 	"devteambot/internal/adapter/discord"
 	"devteambot/internal/adapter/repository/redis"
 	"devteambot/internal/domain/message"
+	"devteambot/internal/domain/point"
 	"devteambot/internal/domain/review"
 	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/cache"
@@ -23,6 +24,7 @@ type Command struct {
 	cmdList  []*discordgo.ApplicationCommand
 
 	MessageService message.Service `inject:"messageService"`
+	PointService   point.Service   `inject:"pointService"`
 	ReviewService  review.Service  `inject:"reviewService"`
 	SettingService setting.Service `inject:"settingService"`
 }

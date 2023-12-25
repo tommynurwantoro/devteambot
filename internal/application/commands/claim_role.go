@@ -35,10 +35,19 @@ func (c *Command) ClaimRole(s *discordgo.Session, i *discordgo.InteractionCreate
 
 	if found {
 		if err = s.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, roleID); err != nil {
+			response = "Something went wrong, please try again later"
+			logger.Error(response, err)
+			c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			return
 		}
 		response = "Success to remove role"
 	} else {
-		s.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, roleID)
+		if err = s.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, roleID); err != nil {
+			response = "Something went wrong, please try again later"
+			logger.Error(response, err)
+			c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			return
+		}
 		response = "Success to add role"
 	}
 

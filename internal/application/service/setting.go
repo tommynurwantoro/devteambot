@@ -48,6 +48,17 @@ func (s *SettingService) IsSuperAdmin(ctx context.Context, guildID string, roles
 	return isAdmin
 }
 
+func (s *SettingService) GetPointLogChannel(ctx context.Context, guildID string) (string, error) {
+	var channelID string
+
+	err := s.SettingRepository.GetByKey(ctx, guildID, setting.POINT_LOG_CHANNEL, &channelID)
+	if err != nil {
+		return "", err
+	}
+
+	return channelID, nil
+}
+
 func contains(s []string, str string) bool {
 	for _, v := range s {
 		if v == str {
