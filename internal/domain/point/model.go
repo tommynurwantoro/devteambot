@@ -33,3 +33,7 @@ type PointHistory struct {
 }
 
 type PointHistories []*PointHistory
+
+func Categories() []string {
+	return []string{"run", "unity", "bravery", "integrity", "customer-oriented"}
+}

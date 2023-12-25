@@ -15,9 +15,9 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 	var response string
 
 	// Admin only
-	if !c.Command.IsSuperAdmin(ctx, i.Interaction) {
+	if !c.Command.SettingService.IsSuperAdmin(ctx, i.GuildID, i.Member.Roles) {
 		response := "This command is only for super admin"
-		c.Command.SendStandardResponse(i.Interaction, response, true, false)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
@@ -61,7 +61,8 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 	m, err := c.Command.Discord.Bot.ChannelMessage(i.ChannelID, messageID)
 	if err != nil {
 		response = "Something went wrong, please try again later"
-		c.Command.SendStandardResponse(i.Interaction, response, true, false)
+		logger.Error(response, err)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
@@ -74,7 +75,7 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 
 	components := []discordgo.MessageComponent{}
 
-	for _, c := range m.Components {
+	for _, comp := range m.Components {
 		if len(components) == 5 {
 			message.Components = append(message.Components, discordgo.ActionsRow{
 				Components: components,
@@ -83,10 +84,15 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 			components = []discordgo.MessageComponent{}
 		}
 
-		data, _ := c.MarshalJSON()
+		data, _ := comp.MarshalJSON()
 
 		actionRow := discordgo.ActionsRow{}
-		actionRow.UnmarshalJSON(data)
+		if err := actionRow.UnmarshalJSON(data); err != nil {
+			logger.Error(err.Error(), err)
+			response = "Failed to add button"
+			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			return
+		}
 
 		components = append(components, actionRow.Components...)
 	}
@@ -103,7 +109,7 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 		split := strings.Split(button, "|")
 		if len(split) < 4 {
 			response = "Please check input format"
-			c.Command.SendStandardResponse(i.Interaction, response, true, false)
+			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 			return
 		}
 		id := split[0]
@@ -133,10 +139,10 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 	if err != nil {
 		logger.Error(err.Error(), err)
 		response = "Failed to add button"
-		c.Command.SendStandardResponse(i.Interaction, response, true, false)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
 	response = "Success to add button"
-	c.Command.SendStandardResponse(i.Interaction, response, true, false)
+	c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 }

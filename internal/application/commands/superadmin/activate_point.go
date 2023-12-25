@@ -3,6 +3,7 @@ package superadmin
 import (
 	"context"
 	"devteambot/internal/domain/setting"
+	"devteambot/internal/pkg/logger"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -12,9 +13,9 @@ func (c *CommandSuperAdmin) ActivatePoint(s *discordgo.Session, i *discordgo.Int
 	var response string
 
 	// Admin only
-	if !c.Command.IsSuperAdmin(ctx, i.Interaction) {
+	if !c.Command.SettingService.IsSuperAdmin(ctx, i.GuildID, i.Member.Roles) {
 		response := "This command is only for super admin"
-		c.Command.SendStandardResponse(i.Interaction, response, true, false)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
@@ -30,13 +31,13 @@ func (c *CommandSuperAdmin) ActivatePoint(s *discordgo.Session, i *discordgo.Int
 		channelID = opt.ChannelValue(s).ID
 	}
 
-	err := c.SettingRepository.SetValue(ctx, i.GuildID, setting.POINT_LOG_CHANNEL, channelID)
-	if err != nil {
+	if err := c.SettingRepository.SetValue(ctx, i.GuildID, setting.POINT_LOG_CHANNEL, channelID); err != nil {
 		response = "Failed to activate point feature"
-		c.Command.SendStandardResponse(i.Interaction, response, true, false)
+		logger.Error(response, err)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
 	response = "Success to activate point feature"
-	c.Command.SendStandardResponse(i.Interaction, response, true, false)
+	c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 }

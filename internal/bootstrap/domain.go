@@ -6,11 +6,16 @@ import (
 )
 
 func RegisterDomain() {
+	RegisterMessage()
 	RegisterSetting()
 	RegisterReview()
 	RegisterPresensi()
 	RegisterPoint()
 	RegisterSholat()
+}
+
+func RegisterMessage() {
+	appContainer.RegisterService("messageService", new(service.MessageService))
 }
 
 func RegisterSetting() {
@@ -20,6 +25,7 @@ func RegisterSetting() {
 
 func RegisterReview() {
 	appContainer.RegisterService("reviewRepository", new(gorm.ReviewRepository))
+	appContainer.RegisterService("reviewService", new(service.ReviewService))
 }
 
 func RegisterPresensi() {

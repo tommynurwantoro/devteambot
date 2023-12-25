@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"devteambot/internal/pkg/logger"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
@@ -53,13 +54,13 @@ func (c *Command) TitipReview(s *discordgo.Session, i *discordgo.InteractionCrea
 		mentions = fmt.Sprintf("%s <@%s>", mentions, userID)
 	}
 
-	_, err := c.ReviewRepository.Create(ctx, i.GuildID, i.Member.User.ID, title, url, reviewers)
-	if err != nil {
+	if err := c.ReviewService.AddReviewer(ctx, i.GuildID, i.Member.User.ID, title, url, reviewers); err != nil {
 		response = "Error to add review"
-		c.SendStandardResponse(i.Interaction, response, true, false)
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
 	response = fmt.Sprintf("<@%s> barusan titip review ya... %s tolong nanti cek 🫰🏻\n[%s](%s)", i.Member.User.ID, mentions, title, url)
-	c.SendStandardResponse(i.Interaction, response, false, false)
+	c.MessageService.SendStandardResponse(i.Interaction, response, false, false)
 }

@@ -1,11 +1,13 @@
 package superadmin
 
 import (
+	"devteambot/internal/pkg/logger"
+
 	"github.com/bwmarrin/discordgo"
 )
 
 func (c *CommandSuperAdmin) Setup(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	c.Command.Discord.Bot.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	if err := c.Command.Discord.Bot.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseModal,
 		Data: &discordgo.InteractionResponseData{
 			CustomID: "setup_superadmin",
@@ -26,5 +28,9 @@ func (c *CommandSuperAdmin) Setup(s *discordgo.Session, i *discordgo.Interaction
 				},
 			},
 		},
-	})
+	}); err != nil {
+		logger.Error("Failed to send response", err)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, "Something went wrong, please try again later", true, false)
+		return
+	}
 }

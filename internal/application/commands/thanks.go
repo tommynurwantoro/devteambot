@@ -2,8 +2,7 @@ package commands
 
 import (
 	"context"
-	"devteambot/internal/domain/setting"
-	"devteambot/internal/pkg/cache"
+	"devteambot/internal/domain/point"
 	"devteambot/internal/pkg/logger"
 	"fmt"
 	"strings"
@@ -38,48 +37,36 @@ func (c *Command) Thanks(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	if to == i.Member.User.ID {
 		response = "Tidak bisa berterima kasih ke diri sendiri"
-		c.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
-	var pointLogChannel string
-	if err := c.SettingRepository.GetByKey(ctx, i.GuildID, setting.POINT_LOG_CHANNEL, &pointLogChannel); err != nil {
+	pointLogChannel, err := c.SettingService.GetPointLogChannel(ctx, i.GuildID)
+	if err != nil {
 		response = "Something went wrong, please try again later"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		logger.Error(err.Error(), err)
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
 	if pointLogChannel == "" {
 		response = "Aktifkan fitur ini terlebih dahulu dengan command /activate_point_feature"
-		c.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
-	var limit int64
-	if err := c.Cache.Get(ctx, c.RedisKey.LimitThanks(i.GuildID, i.Member.User.ID), &limit); err != nil && err != cache.ErrNil {
-		response = "Something went wrong, please try again later"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		logger.Error(err.Error(), err)
+	if err := c.PointService.SendThanks(ctx, i.GuildID, i.Member.User.ID, to, core, reason); err != nil {
+		if err == point.ErrLimitReached {
+			response = "Limit mingguan kamu sudah habis, kamu bisa pakai command /thanks lagi mulai senin depan"
+		} else {
+			response = "Something went wrong, can not add rubic"
+			logger.Error(response, err)
+		}
+		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
-	if limit >= 30 {
-		response = "Limit mingguan kamu sudah habis, kamu bisa pakai command /thanks lagi mulai senin depan"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		return
-	}
+	c.MessageService.SendStandardResponse(i.Interaction, "Success", true, false)
 
-	if _, err := c.PointRepository.Increase(ctx, i.GuildID, to, core, reason, 10); err != nil {
-		response = "Something went wrong, can not add rubic"
-		c.SendStandardResponse(i.Interaction, response, true, false)
-		logger.Error(err.Error(), err)
-		return
-	}
-
-	c.Cache.Increment(ctx, c.RedisKey.LimitThanks(i.GuildID, i.Member.User.ID), 10)
-
-	c.SendStandardResponse(i.Interaction, "Success", true, false)
-
-	c.Discord.Bot.ChannelMessageSend(pointLogChannel, fmt.Sprintf("[%s] - <@%s> barusan kasih 10 rubic ke <@%s> karena %s", strings.ToUpper(core), i.Member.User.ID, to, reason))
+	c.MessageService.SendStandardMessage(pointLogChannel, fmt.Sprintf("[%s] - <@%s> barusan kasih 10 rubic ke <@%s> karena %s", strings.ToUpper(core), i.Member.User.ID, to, reason))
 }

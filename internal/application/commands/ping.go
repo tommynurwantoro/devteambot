@@ -5,5 +5,5 @@ import (
 )
 
 func (c *Command) Ping(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	c.SendStandardResponse(i.Interaction, "pong", true, false)
+	c.MessageService.SendStandardResponse(i.Interaction, "pong", true, false)
 }

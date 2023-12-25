@@ -3,6 +3,7 @@ package superadmin
 import (
 	"context"
 	"devteambot/internal/domain/setting"
+	"devteambot/internal/pkg/logger"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
@@ -13,9 +14,9 @@ func (c *CommandSuperAdmin) ActivateReminderSholat(s *discordgo.Session, i *disc
 	var response string
 
 	// Admin only
-	if !c.Command.IsSuperAdmin(ctx, i.Interaction) {
+	if !c.Command.SettingService.IsSuperAdmin(ctx, i.GuildID, i.Member.Roles) {
 		response := "This command is only for super admin"
-		c.Command.SendStandardResponse(i.Interaction, response, true, false)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
@@ -35,13 +36,13 @@ func (c *CommandSuperAdmin) ActivateReminderSholat(s *discordgo.Session, i *disc
 		roleID = opt.RoleValue(s, i.GuildID).ID
 	}
 
-	err := c.SettingRepository.SetValue(ctx, i.GuildID, setting.REMINDER_SHOLAT, fmt.Sprintf("%s|%s", channelID, roleID))
-	if err != nil {
+	if err := c.SettingRepository.SetValue(ctx, i.GuildID, setting.REMINDER_SHOLAT, fmt.Sprintf("%s|%s", channelID, roleID)); err != nil {
 		response = "Failed to activate reminder"
-		c.Command.SendStandardResponse(i.Interaction, response, true, false)
+		logger.Error(response, err)
+		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
 	response = "Success to activate reminder"
-	c.Command.SendStandardResponse(i.Interaction, response, true, false)
+	c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 }

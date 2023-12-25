@@ -24,3 +24,47 @@ func (s *SettingService) SetSuperAdmin(ctx context.Context, guildID, userIDs str
 
 	return nil
 }
+
+func (s *SettingService) IsSuperAdmin(ctx context.Context, guildID string, roles []string) bool {
+	isAdmin := false
+	admins := make([]string, 0)
+
+	err := s.SettingRepository.GetByKey(ctx, guildID, setting.SUPER_ADMIN, &admins)
+	if err != nil {
+		return false
+	}
+
+	if len(admins) == 0 {
+		return false
+	}
+
+	for _, role := range roles {
+		if contains(admins, role) {
+			isAdmin = true
+			break
+		}
+	}
+
+	return isAdmin
+}
+
+func (s *SettingService) GetPointLogChannel(ctx context.Context, guildID string) (string, error) {
+	var channelID string
+
+	err := s.SettingRepository.GetByKey(ctx, guildID, setting.POINT_LOG_CHANNEL, &channelID)
+	if err != nil {
+		return "", err
+	}
+
+	return channelID, nil
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
+}

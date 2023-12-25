@@ -2,6 +2,8 @@ package commands
 
 import (
 	"context"
+	"devteambot/internal/domain/review"
+	"devteambot/internal/pkg/logger"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
@@ -24,47 +26,36 @@ func (c *Command) SudahDireview(s *discordgo.Session, i *discordgo.InteractionCr
 		number = opt.IntValue()
 	}
 
-	all, err := c.ReviewRepository.GetAllPendingByGuildID(ctx, i.GuildID)
+	all, err := c.ReviewService.GetAntrian(ctx, i.GuildID)
 	if err != nil {
-		response = "Error to get all pending review"
-		c.SendStandardResponse(i.Interaction, response, true, false)
+		response = "Error to get antrian review"
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
 	for j := 1; j <= len(all); j++ {
 		if number == int64(j) {
 			updating := all[j-1]
-			newReviewer := make([]string, 0)
-			found := false
-			for _, s := range updating.Reviewer {
-				if s == i.Member.User.ID {
-					found = true
-					response = fmt.Sprintf("FYI buat <@%s> barusan <@%s> udah selesai review [%s](%s)", updating.Reporter, s, updating.Title, updating.Url)
-					continue
+			err := c.ReviewService.UpdateDone(ctx, updating, i.Member.User.ID)
+			if err != nil {
+				if err == review.ErrReviewerNotFound {
+					response = "Kamu bukan reviewer di antrian itu"
+				} else {
+					response = "Error to update review"
+					logger.Error(response, err)
 				}
 
-				newReviewer = append(newReviewer, s)
-			}
-
-			updating.Reviewer = newReviewer
-			updating.TotalPending = len(newReviewer)
-
-			err := c.ReviewRepository.Update(ctx, updating)
-			if err != nil {
-				response = "Error to update review"
-				c.SendStandardResponse(i.Interaction, response, true, false)
+				c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 				return
 			}
 
-			if !found {
-				response = "Kamu bukan reviewer di antrian itu"
-			}
-
-			c.SendStandardResponse(i.Interaction, response, false, false)
+			response = fmt.Sprintf("FYI buat <@%s> barusan <@%s> udah selesai review [%s](%s)", updating.Reporter, i.Member.User.ID, updating.Title, updating.Url)
+			c.MessageService.SendStandardResponse(i.Interaction, response, false, false)
 			return
 		}
 	}
 
 	response = fmt.Sprintf("Urutan %d gak ada!", number)
-	c.SendStandardResponse(i.Interaction, response, true, false)
+	c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 }

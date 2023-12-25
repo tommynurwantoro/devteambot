@@ -6,7 +6,6 @@ import (
 	"devteambot/internal/domain/point"
 	"devteambot/internal/domain/sharedkernel/entity"
 	"devteambot/internal/pkg/logger"
-	"fmt"
 )
 
 type PointRepository struct {
@@ -88,7 +87,6 @@ func (r *PointRepository) GetByUserID(ctx context.Context, guildID, userID, cate
 
 	tx := r.DB.First(&c, "guild_id = ? AND user_id = ? AND category = ?", guildID, userID, category)
 	if tx.Error != nil {
-		logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
 		return nil, tx.Error
 	}
 
@@ -100,7 +98,6 @@ func (r *PointRepository) GetTopTen(ctx context.Context, guildID, category strin
 
 	tx := r.DB.Where("guild_id = ? AND category = ? AND balance > 0", guildID, category).Order("balance DESC").Limit(10).Find(&listPoint)
 	if tx.Error != nil {
-		logger.Error(fmt.Sprintf("Error: %s", tx.Error.Error()), tx.Error)
 		return nil, tx.Error
 	}
 

@@ -4,6 +4,7 @@ import (
 	"devteambot/config"
 	"devteambot/internal/adapter/discord"
 	"devteambot/internal/adapter/repository/redis"
+	"devteambot/internal/domain/message"
 	"devteambot/internal/domain/point"
 	"devteambot/internal/domain/review"
 	"devteambot/internal/domain/setting"
@@ -16,17 +17,16 @@ import (
 )
 
 type Command struct {
-	Conf        *config.Config  `inject:"config"`
-	Discord     *discord.App    `inject:"discord"`
-	Cache       cache.Service   `inject:"cache"`
-	RedisKey    redis.RedisKey  `inject:"redisKey"`
-	Admins      map[string]bool `inject:"admins"`
-	SuperAdmins map[string]bool `inject:"superAdmins"`
-	cmdList     []*discordgo.ApplicationCommand
+	Conf     *config.Config `inject:"config"`
+	Discord  *discord.App   `inject:"discord"`
+	Cache    cache.Service  `inject:"cache"`
+	RedisKey redis.RedisKey `inject:"redisKey"`
+	cmdList  []*discordgo.ApplicationCommand
 
-	SettingRepository setting.Repository `inject:"settingRepository"`
-	ReviewRepository  review.Repository  `inject:"reviewRepository"`
-	PointRepository   point.Repository   `inject:"pointRepository"`
+	MessageService message.Service `inject:"messageService"`
+	PointService   point.Service   `inject:"pointService"`
+	ReviewService  review.Service  `inject:"reviewService"`
+	SettingService setting.Service `inject:"settingService"`
 }
 
 func (c *Command) Startup() error {
