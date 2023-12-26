@@ -2,9 +2,7 @@ package superadmin
 
 import (
 	"context"
-	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/logger"
-	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -36,7 +34,7 @@ func (c *CommandSuperAdmin) ActivateReminderSholat(s *discordgo.Session, i *disc
 		roleID = opt.RoleValue(s, i.GuildID).ID
 	}
 
-	if err := c.SettingRepository.SetValue(ctx, i.GuildID, setting.REMINDER_SHOLAT, fmt.Sprintf("%s|%s", channelID, roleID)); err != nil {
+	if err := c.SettingService.SetReminderSholatChannel(ctx, i.GuildID, channelID, roleID); err != nil {
 		response = "Failed to activate reminder"
 		logger.Error(response, err)
 		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)

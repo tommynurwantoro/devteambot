@@ -3,7 +3,6 @@ package cmd
 import (
 	"devteambot/config"
 	"devteambot/internal/bootstrap"
-	"devteambot/internal/pkg/conf"
 	"devteambot/internal/pkg/logger"
 	"log"
 
@@ -19,25 +18,24 @@ var commandService = &cobra.Command{
 	Aliases: []string{"svc"},
 	Short:   "Run service",
 	Run: func(c *cobra.Command, args []string) {
-		x := conf.NewConfig(configFile, new(config.Config))
-		newConfig, ok := x.(*config.Config)
-		if !ok {
+		conf, err := config.Load(configFile)
+		if err != nil {
 			log.Fatal("Something went wrong when populating config")
 		}
 
 		loggerConfig := logger.Config{
-			App:           newConfig.AppName,
-			AppVer:        newConfig.AppVersion,
-			Env:           newConfig.Environment,
-			FileLocation:  newConfig.Logger.FileLocation,
-			FileMaxSize:   newConfig.Logger.FileMaxAge,
-			FileMaxBackup: newConfig.Logger.FileMaxBackup,
-			FileMaxAge:    newConfig.Logger.FileMaxAge,
-			Stdout:        newConfig.Logger.Stdout,
+			App:           conf.AppName,
+			AppVer:        conf.AppVersion,
+			Env:           conf.Environment,
+			FileLocation:  conf.Logger.FileLocation,
+			FileMaxSize:   conf.Logger.FileMaxAge,
+			FileMaxBackup: conf.Logger.FileMaxBackup,
+			FileMaxAge:    conf.Logger.FileMaxAge,
+			Stdout:        conf.Logger.Stdout,
 		}
 
 		logger.Load(loggerConfig)
-		bootstrap.Run(newConfig)
+		bootstrap.Run(conf)
 	},
 }
 

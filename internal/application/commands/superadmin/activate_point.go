@@ -2,7 +2,6 @@ package superadmin
 
 import (
 	"context"
-	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/logger"
 
 	"github.com/bwmarrin/discordgo"
@@ -31,7 +30,7 @@ func (c *CommandSuperAdmin) ActivatePoint(s *discordgo.Session, i *discordgo.Int
 		channelID = opt.ChannelValue(s).ID
 	}
 
-	if err := c.SettingRepository.SetValue(ctx, i.GuildID, setting.POINT_LOG_CHANNEL, channelID); err != nil {
+	if err := c.SettingService.SetPointLogChannel(ctx, i.GuildID, channelID); err != nil {
 		response = "Failed to activate point feature"
 		logger.Error(response, err)
 		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
