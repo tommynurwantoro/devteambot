@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"devteambot/internal/domain/setting"
+	"fmt"
 	"strings"
 )
 
@@ -57,6 +58,32 @@ func (s *SettingService) GetPointLogChannel(ctx context.Context, guildID string)
 	}
 
 	return channelID, nil
+}
+
+func (s *SettingService) SetPointLogChannel(ctx context.Context, guildID, channelID string) error {
+	if err := s.SettingRepository.SetValue(ctx, guildID, setting.POINT_LOG_CHANNEL, channelID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *SettingService) SetReminderPresensiChannel(ctx context.Context, guildID, channelID, roleID string) error {
+	value := fmt.Sprintf("%s|%s", channelID, roleID)
+	if err := s.SettingRepository.SetValue(ctx, guildID, setting.REMINDER_PRESENSI, value); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *SettingService) SetReminderSholatChannel(ctx context.Context, guildID, channelID, roleID string) error {
+	value := fmt.Sprintf("%s|%s", channelID, roleID)
+	if err := s.SettingRepository.SetValue(ctx, guildID, setting.REMINDER_SHOLAT, value); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func contains(s []string, str string) bool {
