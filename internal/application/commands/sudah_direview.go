@@ -51,7 +51,15 @@ func (c *Command) SudahDireview(s *discordgo.Session, i *discordgo.InteractionCr
 			}
 
 			response = fmt.Sprintf("FYI buat <@%s> barusan <@%s> udah selesai review [%s](%s)", updating.Reporter, i.Member.User.ID, updating.Title, updating.Url)
-			c.MessageService.SendStandardResponse(i.Interaction, response, false, false)
+			reviews, err := c.ReviewService.GetAntrian(ctx, i.GuildID)
+			if err != nil {
+				response = "Error to get antrian review"
+				logger.Error(response, err)
+			}
+
+			_, embed := c.ReviewService.PrettyAntrian(reviews)
+
+			c.MessageService.SendEmbedResponse(i.Interaction, response, embed, false)
 			return
 		}
 	}

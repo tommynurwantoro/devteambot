@@ -4,6 +4,11 @@ import (
 	"context"
 	"devteambot/internal/domain/review"
 	"devteambot/internal/domain/sharedkernel/entity"
+	"devteambot/internal/pkg/constant"
+	"fmt"
+	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 type ReviewService struct {
@@ -65,4 +70,41 @@ func (s *ReviewService) AddReviewer(ctx context.Context, guildID, userID, title,
 	}
 
 	return nil
+}
+
+func (s *ReviewService) PrettyAntrian(reviews review.Reviews) (string, *discordgo.MessageEmbed) {
+	if len(reviews) == 0 {
+		return "", &discordgo.MessageEmbed{
+			Title:       "Antrian Review",
+			Description: "Gak ada antrian review nih 👍🏻",
+		}
+	}
+
+	embed := &discordgo.MessageEmbed{
+		Title:       "Antrian Review",
+		Description: "Reviewer dapat menggunakan command `/sudah_direview` untuk menyelesaikan review. Berikut adalah antrian review tim kamu:",
+		Color:       constant.GREEN,
+		Fields:      make([]*discordgo.MessageEmbedField, 0),
+	}
+
+	content := ""
+
+	for i, r := range reviews {
+		reviewer := ""
+		for _, user := range r.Reviewer {
+			if !strings.Contains(content, user) {
+				content = fmt.Sprintf("%s <@%s>", content, user)
+			}
+			reviewer = fmt.Sprintf("%s, <@%s>", reviewer, user)
+		}
+
+		reviewer = reviewer[2:]
+
+		embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
+			Name:  fmt.Sprintf("%d. %s :arrow_right: %s", i+1, r.Title, r.Url),
+			Value: fmt.Sprintf("Reviewer: %s", reviewer),
+		})
+	}
+
+	return content, embed
 }
