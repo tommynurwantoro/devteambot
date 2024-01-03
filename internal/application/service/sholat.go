@@ -56,8 +56,6 @@ func (s *SholatService) SendReminder(ctx context.Context) error {
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	now := time.Now().In(loc)
 
-	logger.Info(fmt.Sprintf("Sholat: Send Reminder is running at %s", time.Now().In(loc).Format("2006-01-02 15:04:05")))
-
 	var todaySchedule resty.GetJadwalSholatResponse
 	s.Cache.Get(ctx, s.RedisKey.DailySholatSchedule(), &todaySchedule)
 
