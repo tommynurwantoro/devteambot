@@ -34,7 +34,7 @@ func (s *SholatService) GetTodaySchedule(ctx context.Context) error {
 
 	logger.Info(fmt.Sprintf("Sholat: Get Today Schedule is running at %s", time.Now().In(loc).Format("2006-01-02 15:04:05")))
 
-	resp, err := req.Get(fmt.Sprintf("yogyakarta/%d/%d.json", now.Year(), int(now.Month())))
+	resp, err := req.Get(fmt.Sprintf("yogyakarta/%d/%02d.json", now.Year(), int(now.Month())))
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error: %s", err.Error()), err)
 		return err
