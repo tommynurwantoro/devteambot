@@ -15,6 +15,7 @@ type Config struct {
 	Redis         Redis                `valid:"required"`
 	Discord       Discord              `valid:"required"`
 	Schedulers    map[string]Scheduler `valid:"required"`
+	GoogleAI      GoogleAIConfig       `valid:"required"`
 }
 
 type HttpConfig struct {
@@ -59,6 +60,10 @@ type Redis struct {
 	Address  string `valid:"required"`
 	Port     int    `valid:"required"`
 	Password string
+}
+
+type GoogleAIConfig struct {
+	Token string `valid:"required"`
 }
 
 type Scheduler struct {

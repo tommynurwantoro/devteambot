@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"devteambot/internal/adapter/discord"
+	"devteambot/internal/adapter/google"
 	"devteambot/internal/adapter/repository"
 	"devteambot/internal/adapter/repository/redis"
 	"devteambot/internal/adapter/rest"
@@ -15,6 +16,10 @@ func RegisterDatabase() {
 func RegisterCache() {
 	appContainer.RegisterService("cache", new(repository.Cache))
 	appContainer.RegisterService("redisKey", redis.NewRedisKey())
+}
+
+func RegisterAI() {
+	appContainer.RegisterService("googleai", new(google.AI))
 }
 
 func RegisterRest() {

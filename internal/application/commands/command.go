@@ -156,6 +156,19 @@ func (c *Command) Startup() error {
 				Type:        discordgo.ChatApplicationCommand,
 				Description: "Show rubic leaderboard per category",
 			},
+			{
+				Name:        "ask",
+				Type:        discordgo.ChatApplicationCommand,
+				Description: "Ask the bot a question",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Name:        "prompt",
+						Description: "Your question",
+						Type:        discordgo.ApplicationCommandOptionString,
+						Required:    true,
+					},
+				},
+			},
 		}
 
 		logger.Info("Adding commands...")

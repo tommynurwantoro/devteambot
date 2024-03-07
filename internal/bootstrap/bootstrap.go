@@ -43,12 +43,18 @@ func Run(conf *config.Config) {
 	// Adapter
 	RegisterDatabase()
 	RegisterCache()
-	RegisterDomain()
+	RegisterAI()
 	RegisterDiscord()
 	RegisterResty()
 	RegisterRest()
 
+	// Domain
+	RegisterSetting()
+	RegisterReview()
+	RegisterPoint()
+
 	// Application
+	RegisterService()
 	RegisterAPI()
 	RegisterCommand()
 	RegisterScheduler(conf)
