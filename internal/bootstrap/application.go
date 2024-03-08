@@ -25,6 +25,7 @@ func RegisterService() {
 	appContainer.RegisterService("presensiService", new(service.PresensiService))
 	appContainer.RegisterService("pointService", new(service.PointService))
 	appContainer.RegisterService("sholatService", new(service.SholatService))
+	appContainer.RegisterService("aiService", new(service.AI))
 }
 
 func RegisterAPI() {
