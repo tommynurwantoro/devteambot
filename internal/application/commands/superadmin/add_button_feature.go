@@ -1,7 +1,6 @@
 package superadmin
 
 import (
-	"devteambot/internal/adapter/discord"
 	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
 	"fmt"
@@ -12,8 +11,7 @@ import (
 
 type AddButtonFeatureCommand struct {
 	AppCommand        *discordgo.ApplicationCommand
-	CommandSuperAdmin *Command     `inject:"commandSuperAdmin"`
-	Discord           *discord.App `inject:"discord"`
+	CommandSuperAdmin *Command `inject:"commandSuperAdmin"`
 
 	MessageService service.MessageService `inject:"messageService"`
 	SettingService service.SettingService `inject:"settingService"`
@@ -130,7 +128,7 @@ func (c *AddButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Interact
 		buttons = append(buttons, opt.StringValue())
 	}
 
-	m, err := c.Discord.Bot.ChannelMessage(i.ChannelID, messageID)
+	m, err := c.CommandSuperAdmin.Discord.Bot.ChannelMessage(i.ChannelID, messageID)
 	if err != nil {
 		response = "Something went wrong, please try again later"
 		logger.Error(response, err)
