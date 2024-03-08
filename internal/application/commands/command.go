@@ -5,8 +5,6 @@ import (
 	"devteambot/internal/adapter/discord"
 	"devteambot/internal/adapter/repository/redis"
 	"devteambot/internal/application/service"
-	"devteambot/internal/domain/message"
-	"devteambot/internal/domain/point"
 	"devteambot/internal/domain/review"
 	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/cache"
@@ -24,11 +22,11 @@ type Command struct {
 	RedisKey redis.RedisKey `inject:"redisKey"`
 	cmdList  []*discordgo.ApplicationCommand
 
-	MessageService message.Service   `inject:"messageService"`
-	PointService   point.Service     `inject:"pointService"`
-	ReviewService  review.Service    `inject:"reviewService"`
-	SettingService setting.Service   `inject:"settingService"`
-	AIService      service.AIService `inject:"aiService"`
+	MessageService service.MessageService `inject:"messageService"`
+	PointService   service.PointService   `inject:"pointService"`
+	ReviewService  review.Service         `inject:"reviewService"`
+	SettingService setting.Service        `inject:"settingService"`
+	AIService      service.AIService      `inject:"aiService"`
 }
 
 func (c *Command) Startup() error {

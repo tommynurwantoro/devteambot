@@ -7,11 +7,18 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-type MessageService struct {
+type MessageService interface {
+	SendStandardResponse(i *discordgo.Interaction, response string, isPrivate, isRemovePreview bool)
+	EditStandardResponse(i *discordgo.Interaction, response string)
+	SendEmbedResponse(i *discordgo.Interaction, content string, embed *discordgo.MessageEmbed, isPrivate bool)
+	SendStandardMessage(channelID, message string)
+}
+
+type Message struct {
 	App *discord.App `inject:"discord"`
 }
 
-func (s *MessageService) SendStandardResponse(i *discordgo.Interaction, response string, isPrivate, isRemovePreview bool) {
+func (s *Message) SendStandardResponse(i *discordgo.Interaction, response string, isPrivate, isRemovePreview bool) {
 	data := &discordgo.InteractionResponseData{
 		Content: response,
 	}
@@ -32,7 +39,7 @@ func (s *MessageService) SendStandardResponse(i *discordgo.Interaction, response
 	}
 }
 
-func (s *MessageService) EditStandardResponse(i *discordgo.Interaction, response string) {
+func (s *Message) EditStandardResponse(i *discordgo.Interaction, response string) {
 	if _, err := s.App.Bot.InteractionResponseEdit(i, &discordgo.WebhookEdit{
 		Content: &response,
 	}); err != nil {
@@ -40,7 +47,7 @@ func (s *MessageService) EditStandardResponse(i *discordgo.Interaction, response
 	}
 }
 
-func (s *MessageService) SendEmbedResponse(i *discordgo.Interaction, content string, embed *discordgo.MessageEmbed, isPrivate bool) {
+func (s *Message) SendEmbedResponse(i *discordgo.Interaction, content string, embed *discordgo.MessageEmbed, isPrivate bool) {
 	data := &discordgo.InteractionResponseData{
 		Content: content,
 		Embeds:  []*discordgo.MessageEmbed{embed},
@@ -63,7 +70,7 @@ func (s *MessageService) SendEmbedResponse(i *discordgo.Interaction, content str
 	}
 }
 
-func (s *MessageService) SendStandardMessage(channelID, message string) {
+func (s *Message) SendStandardMessage(channelID, message string) {
 	if _, err := s.App.Bot.ChannelMessageSend(channelID, message); err != nil {
 		logger.Error("Error to send message", err)
 	}
