@@ -14,7 +14,12 @@ import (
 	"time"
 )
 
-type SholatService struct {
+type SholatService interface {
+	GetTodaySchedule(ctx context.Context) error
+	SendReminder(ctx context.Context) error
+}
+
+type Sholat struct {
 	API               *resty.JadwalSholatOrg `inject:"jadwalSholatOrgAPI"`
 	Cache             cache.Service          `inject:"cache"`
 	App               *discord.App           `inject:"discord"`
@@ -22,11 +27,11 @@ type SholatService struct {
 	RedisKey          redis.RedisKey         `inject:"redisKey"`
 }
 
-func (s *SholatService) Startup() error { return nil }
+func (s *Sholat) Startup() error { return nil }
 
-func (s *SholatService) Shutdown() error { return nil }
+func (s *Sholat) Shutdown() error { return nil }
 
-func (s *SholatService) GetTodaySchedule(ctx context.Context) error {
+func (s *Sholat) GetTodaySchedule(ctx context.Context) error {
 	req := s.API.Client.R().SetContext(ctx).
 		ForceContentType("application/json")
 	loc, _ := time.LoadLocation("Asia/Jakarta")
@@ -52,7 +57,7 @@ func (s *SholatService) GetTodaySchedule(ctx context.Context) error {
 	return nil
 }
 
-func (s *SholatService) SendReminder(ctx context.Context) error {
+func (s *Sholat) SendReminder(ctx context.Context) error {
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	now := time.Now().In(loc)
 

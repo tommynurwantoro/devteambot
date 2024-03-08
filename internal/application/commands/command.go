@@ -5,8 +5,6 @@ import (
 	"devteambot/internal/adapter/discord"
 	"devteambot/internal/adapter/repository/redis"
 	"devteambot/internal/application/service"
-	"devteambot/internal/domain/review"
-	"devteambot/internal/domain/setting"
 	"devteambot/internal/pkg/cache"
 	"devteambot/internal/pkg/logger"
 	"fmt"
@@ -24,8 +22,8 @@ type Command struct {
 
 	MessageService service.MessageService `inject:"messageService"`
 	PointService   service.PointService   `inject:"pointService"`
-	ReviewService  review.Service         `inject:"reviewService"`
-	SettingService setting.Service        `inject:"settingService"`
+	ReviewService  service.ReviewService  `inject:"reviewService"`
+	SettingService service.SettingService `inject:"settingService"`
 	AIService      service.AIService      `inject:"aiService"`
 }
 

@@ -20,11 +20,11 @@ func RegisterScheduler(conf *config.Config) {
 
 func RegisterService() {
 	appContainer.RegisterService("messageService", new(service.Message))
-	appContainer.RegisterService("settingService", new(service.SettingService))
-	appContainer.RegisterService("reviewService", new(service.ReviewService))
-	appContainer.RegisterService("presensiService", new(service.PresensiService))
+	appContainer.RegisterService("settingService", new(service.Setting))
+	appContainer.RegisterService("reviewService", new(service.Review))
+	appContainer.RegisterService("presensiService", new(service.Presensi))
 	appContainer.RegisterService("pointService", new(service.Point))
-	appContainer.RegisterService("sholatService", new(service.SholatService))
+	appContainer.RegisterService("sholatService", new(service.Sholat))
 	appContainer.RegisterService("aiService", new(service.AI))
 }
 

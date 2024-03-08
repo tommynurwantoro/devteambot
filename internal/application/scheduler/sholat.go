@@ -3,7 +3,7 @@ package scheduler
 import (
 	"context"
 	"devteambot/config"
-	"devteambot/internal/domain/sholat"
+	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
 	"time"
 
@@ -11,9 +11,9 @@ import (
 )
 
 type SholatScheduler struct {
-	Scheduler     *Scheduler     `inject:"scheduler"`
-	Config        *config.Config `inject:"config"`
-	SholatService sholat.Service `inject:"sholatService"`
+	Scheduler     *Scheduler            `inject:"scheduler"`
+	Config        *config.Config        `inject:"config"`
+	SholatService service.SholatService `inject:"sholatService"`
 }
 
 func (s *SholatScheduler) Startup() error {

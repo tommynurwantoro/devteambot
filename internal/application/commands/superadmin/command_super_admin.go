@@ -2,7 +2,7 @@ package superadmin
 
 import (
 	"devteambot/internal/application/commands"
-	"devteambot/internal/domain/setting"
+	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
 	"fmt"
 
@@ -13,8 +13,7 @@ type CommandSuperAdmin struct {
 	Command *commands.Command `inject:"baseCommand"`
 	cmdList []*discordgo.ApplicationCommand
 
-	SettingRepository setting.Repository `inject:"settingRepository"`
-	SettingService    setting.Service    `inject:"settingService"`
+	SettingService service.SettingService `inject:"settingService"`
 }
 
 func (c *CommandSuperAdmin) Startup() error {
