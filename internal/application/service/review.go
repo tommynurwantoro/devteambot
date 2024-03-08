@@ -108,8 +108,8 @@ func (s *Review) PrettyAntrian(reviews review.Reviews) (string, *discordgo.Messa
 		reviewer = reviewer[2:]
 
 		embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
-			Name:  fmt.Sprintf("%d. %s :arrow_right: %s", i+1, r.Title, r.Url),
-			Value: fmt.Sprintf("Reviewer: %s", reviewer),
+			Name:  fmt.Sprintf("%d. %s", i+1, r.Title),
+			Value: fmt.Sprintf("%s \nReviewer: %s", r.Url, reviewer),
 		})
 	}
 
