@@ -1,13 +1,35 @@
-package commands
+package member
 
 import (
+	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func (c *Command) ClaimRole(s *discordgo.Session, i *discordgo.InteractionCreate) {
+type ClaimRoleCommand struct {
+	AppCommand *discordgo.ApplicationCommand
+	Command    *Command `inject:"commandMember"`
+
+	MessageService service.MessageService `inject:"messageService"`
+}
+
+func (c *ClaimRoleCommand) Startup() error {
+	c.Command.Discord.Bot.AddHandler(c.HandleCommand)
+
+	return nil
+}
+
+func (c *ClaimRoleCommand) Shutdown() error { return nil }
+
+func (c *ClaimRoleCommand) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Type == discordgo.InteractionMessageComponent && strings.HasPrefix(i.MessageComponentData().CustomID, "claim_role") {
+		c.Do(s, i.Interaction)
+	}
+}
+
+func (c *ClaimRoleCommand) Do(s *discordgo.Session, i *discordgo.Interaction) {
 	var response string
 
 	customID := i.MessageComponentData().CustomID
@@ -22,7 +44,7 @@ func (c *Command) ClaimRole(s *discordgo.Session, i *discordgo.InteractionCreate
 	if err != nil {
 		response = "Something went wrong, please try again later"
 		logger.Error(response, err)
-		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i, response, true, false)
 		return
 	}
 
@@ -37,7 +59,7 @@ func (c *Command) ClaimRole(s *discordgo.Session, i *discordgo.InteractionCreate
 		if err = s.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, roleID); err != nil {
 			response = "Something went wrong, please try again later"
 			logger.Error(response, err)
-			c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			c.MessageService.SendStandardResponse(i, response, true, false)
 			return
 		}
 		response = "Success to remove role"
@@ -45,11 +67,11 @@ func (c *Command) ClaimRole(s *discordgo.Session, i *discordgo.InteractionCreate
 		if err = s.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, roleID); err != nil {
 			response = "Something went wrong, please try again later"
 			logger.Error(response, err)
-			c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			c.MessageService.SendStandardResponse(i, response, true, false)
 			return
 		}
 		response = "Success to add role"
 	}
 
-	c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+	c.MessageService.SendStandardResponse(i, response, true, false)
 }

@@ -1,7 +1,8 @@
-package commands
+package member
 
 import (
 	"context"
+	"devteambot/internal/application/service"
 	"devteambot/internal/domain/point"
 	"devteambot/internal/pkg/constant"
 	"devteambot/internal/pkg/logger"
@@ -11,7 +12,36 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (c *Command) ThanksLeaderboard(s *discordgo.Session, i *discordgo.InteractionCreate) {
+type ThanksLeaderboardCommand struct {
+	AppCommand *discordgo.ApplicationCommand
+	Command    *Command `inject:"commandMember"`
+
+	PointService   service.PointService   `inject:"pointService"`
+	MessageService service.MessageService `inject:"messageService"`
+}
+
+func (c *ThanksLeaderboardCommand) Startup() error {
+	c.AppCommand = &discordgo.ApplicationCommand{
+		Name:        "thanks_leaderboard",
+		Type:        discordgo.ChatApplicationCommand,
+		Description: "Show rubic leaderboard per category",
+	}
+
+	c.Command.AppendCommand(c.AppCommand)
+	c.Command.Discord.Bot.AddHandler(c.HandleCommand)
+
+	return nil
+}
+
+func (c *ThanksLeaderboardCommand) Shutdown() error { return nil }
+
+func (c *ThanksLeaderboardCommand) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Type == discordgo.InteractionApplicationCommand && i.ApplicationCommandData().Name == c.AppCommand.Name {
+		c.Do(i.Interaction)
+	}
+}
+
+func (c *ThanksLeaderboardCommand) Do(i *discordgo.Interaction) {
 	var response string
 	ctx := context.Background()
 
@@ -35,7 +65,7 @@ func (c *Command) ThanksLeaderboard(s *discordgo.Session, i *discordgo.Interacti
 		if err != nil && err != point.ErrDataNotFound {
 			response = "Something went wrong, can not add rubic"
 			logger.Error(response, err)
-			c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			c.MessageService.SendStandardResponse(i, response, true, false)
 			return
 		}
 
@@ -45,13 +75,14 @@ func (c *Command) ThanksLeaderboard(s *discordgo.Session, i *discordgo.Interacti
 		}
 
 		for n, t := range topTen {
-			if n == 0 {
+			switch n {
+			case 0:
 				embed.Description = fmt.Sprintf("%s:first_place: <@%s> `Total Rubic: %d`\n", embed.Description, t.UserID, t.Balance)
-			} else if n == 1 {
+			case 1:
 				embed.Description = fmt.Sprintf("%s:second_place: <@%s> `Total Rubic: %d`\n", embed.Description, t.UserID, t.Balance)
-			} else if n == 2 {
+			case 2:
 				embed.Description = fmt.Sprintf("%s:third_place: <@%s> `Total Rubic: %d`\n", embed.Description, t.UserID, t.Balance)
-			} else {
+			default:
 				embed.Description = fmt.Sprintf("%s#%d <@%s> `Total Rubic: %d`\n", embed.Description, n+1, t.UserID, t.Balance)
 			}
 		}
@@ -64,14 +95,14 @@ func (c *Command) ThanksLeaderboard(s *discordgo.Session, i *discordgo.Interacti
 		message.Content = "Belum ada data"
 	}
 
-	_, err := s.ChannelMessageSendComplex(i.ChannelID, message)
+	err := c.MessageService.SendEmbedMessage(i.ChannelID, message)
 	if err != nil {
 		response = "Failed to send embed"
 		logger.Error(response, err)
-		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i, response, true, false)
 		return
 	}
 
 	response = "Success to generate leaderboard"
-	c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+	c.MessageService.SendStandardResponse(i, response, true, false)
 }

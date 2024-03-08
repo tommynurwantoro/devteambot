@@ -3,9 +3,8 @@ package bootstrap
 import (
 	"devteambot/config"
 	"devteambot/internal/application/api"
-	"devteambot/internal/application/commands"
+	"devteambot/internal/application/commands/member"
 	"devteambot/internal/application/commands/superadmin"
-	"devteambot/internal/application/events"
 	"devteambot/internal/application/scheduler"
 	"devteambot/internal/application/service"
 )
@@ -33,6 +32,7 @@ func RegisterAPI() {
 }
 
 func RegisterCommand() {
+	// Superadmin
 	appContainer.RegisterService("activatePointCommand", new(superadmin.ActivatePointCommand))
 	appContainer.RegisterService("activateReminderPresensiCommand", new(superadmin.ActivateReminderPresensiCommand))
 	appContainer.RegisterService("ActivateReminderSholatCommand", new(superadmin.ActivateReminderSholatCommand))
@@ -41,7 +41,17 @@ func RegisterCommand() {
 	appContainer.RegisterService("editEmbedCommand", new(superadmin.EditEmbedCommand))
 	appContainer.RegisterService("sendEmbedCommand", new(superadmin.SendEmbedCommand))
 
-	appContainer.RegisterService("baseCommand", new(commands.Command))
+	// Member
+	appContainer.RegisterService("antrianReviewCommand", new(member.AntrianReviewCommand))
+	appContainer.RegisterService("askCommand", new(member.AskCommand))
+	appContainer.RegisterService("claimRoleCommand", new(member.ClaimRoleCommand))
+	appContainer.RegisterService("pingCpmmand", new(member.PingCommand))
+	appContainer.RegisterService("sudahDireviewCommand", new(member.SudahDireviewCommand))
+	appContainer.RegisterService("thanksCommand", new(member.ThanksCommand))
+	appContainer.RegisterService("thanksLeaderboardCommand", new(member.ThanksLeaderboardCommand))
+	appContainer.RegisterService("titipReviewCommand", new(member.TitipReviewCommand))
+
 	appContainer.RegisterService("commandSuperAdmin", new(superadmin.Command))
-	appContainer.RegisterService("event", new(events.Event))
+	appContainer.RegisterService("member", new(member.Command))
+	// appContainer.RegisterService("event", new(events.Event))
 }
