@@ -4,7 +4,7 @@ import (
 	"devteambot/config"
 	"devteambot/internal/application/api"
 	"devteambot/internal/application/commands"
-	commandsuperadmin "devteambot/internal/application/commands/superadmin"
+	"devteambot/internal/application/commands/superadmin"
 	"devteambot/internal/application/events"
 	"devteambot/internal/application/scheduler"
 	"devteambot/internal/application/service"
@@ -33,7 +33,15 @@ func RegisterAPI() {
 }
 
 func RegisterCommand() {
+	appContainer.RegisterService("activatePointCommand", new(superadmin.ActivatePointCommand))
+	appContainer.RegisterService("activateReminderPresensiCommand", new(superadmin.ActivateReminderPresensiCommand))
+	appContainer.RegisterService("ActivateReminderSholatCommand", new(superadmin.ActivateReminderSholatCommand))
+	appContainer.RegisterService("addButtonFeatureCommand", new(superadmin.AddButtonFeatureCommand))
+	appContainer.RegisterService("deleteButtonFeatureCommand", new(superadmin.DeleteButtonFeatureCommand))
+	appContainer.RegisterService("editEmbedCommand", new(superadmin.EditEmbedCommand))
+	appContainer.RegisterService("sendEmbedCommand", new(superadmin.SendEmbedCommand))
+
 	appContainer.RegisterService("baseCommand", new(commands.Command))
-	appContainer.RegisterService("commandSuperAdmin", new(commandsuperadmin.CommandSuperAdmin))
+	appContainer.RegisterService("commandSuperAdmin", new(superadmin.Command))
 	appContainer.RegisterService("event", new(events.Event))
 }

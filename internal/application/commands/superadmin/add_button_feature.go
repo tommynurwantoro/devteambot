@@ -1,25 +1,97 @@
 package superadmin
 
 import (
-	"context"
+	"devteambot/internal/adapter/discord"
+	"devteambot/internal/application/service"
+	"devteambot/internal/pkg/logger"
 	"fmt"
 	"strings"
-
-	"devteambot/internal/pkg/logger"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	ctx := context.Background()
-	var response string
+type AddButtonFeatureCommand struct {
+	AppCommand        *discordgo.ApplicationCommand
+	CommandSuperAdmin *Command     `inject:"commandSuperAdmin"`
+	Discord           *discord.App `inject:"discord"`
 
-	// Admin only
-	if !c.Command.SettingService.IsSuperAdmin(ctx, i.GuildID, i.Member.Roles) {
-		response := "This command is only for super admin"
-		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
-		return
+	MessageService service.MessageService `inject:"messageService"`
+	SettingService service.SettingService `inject:"settingService"`
+}
+
+func (c *AddButtonFeatureCommand) Startup() error {
+	c.AppCommand = &discordgo.ApplicationCommand{
+		Name:        "add_button_feature",
+		Type:        discordgo.ChatApplicationCommand,
+		Description: "Add button feature to existing message",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Name:        "command",
+				Description: "Choose feature command",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Choices: []*discordgo.ApplicationCommandOptionChoice{
+					{
+						Name:  "Claim Role",
+						Value: "claim_role",
+					},
+				},
+				Required: true,
+			},
+			{
+				Name:        "message_id",
+				Description: "Message ID",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    true,
+			},
+			{
+				Name:        "button1",
+				Description: "RoleID|Name|IconName|IconID",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    true,
+			},
+			{
+				Name:        "button2",
+				Description: "RoleID|Name|IconName|IconID",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    false,
+			},
+			{
+				Name:        "button3",
+				Description: "RoleID|Name|IconName|IconID",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    false,
+			},
+			{
+				Name:        "button4",
+				Description: "RoleID|Name|IconName|IconID",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    false,
+			},
+			{
+				Name:        "button5",
+				Description: "RoleID|Name|IconName|IconID",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    false,
+			},
+		},
 	}
+
+	c.CommandSuperAdmin.AppendCommand(c.AppCommand)
+	c.CommandSuperAdmin.Discord.Bot.AddHandler(c.HandleCommand)
+
+	return nil
+}
+
+func (c *AddButtonFeatureCommand) Shutdown() error { return nil }
+
+func (c *AddButtonFeatureCommand) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Type == discordgo.InteractionApplicationCommand && i.ApplicationCommandData().Name == c.AppCommand.Name {
+		c.Do(s, i.Interaction)
+	}
+}
+
+func (c *AddButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Interaction) {
+	var response string
 
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
@@ -58,11 +130,11 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 		buttons = append(buttons, opt.StringValue())
 	}
 
-	m, err := c.Command.Discord.Bot.ChannelMessage(i.ChannelID, messageID)
+	m, err := c.Discord.Bot.ChannelMessage(i.ChannelID, messageID)
 	if err != nil {
 		response = "Something went wrong, please try again later"
 		logger.Error(response, err)
-		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i, response, true, false)
 		return
 	}
 
@@ -90,7 +162,7 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 		if err := actionRow.UnmarshalJSON(data); err != nil {
 			logger.Error(err.Error(), err)
 			response = "Failed to add button"
-			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			c.MessageService.SendStandardResponse(i, response, true, false)
 			return
 		}
 
@@ -109,7 +181,7 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 		split := strings.Split(button, "|")
 		if len(split) < 4 {
 			response = "Please check input format"
-			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			c.MessageService.SendStandardResponse(i, response, true, false)
 			return
 		}
 		id := split[0]
@@ -139,10 +211,10 @@ func (c *CommandSuperAdmin) AddButtonFeature(s *discordgo.Session, i *discordgo.
 	if err != nil {
 		logger.Error(err.Error(), err)
 		response = "Failed to add button"
-		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i, response, true, false)
 		return
 	}
 
 	response = "Success to add button"
-	c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+	c.MessageService.SendStandardResponse(i, response, true, false)
 }

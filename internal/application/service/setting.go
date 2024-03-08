@@ -4,12 +4,9 @@ import (
 	"context"
 	"devteambot/internal/domain/setting"
 	"fmt"
-	"strings"
 )
 
 type SettingService interface {
-	SetSuperAdmin(ctx context.Context, guildID, userIDs string) error
-	IsSuperAdmin(ctx context.Context, guildID string, roles []string) bool
 	GetPointLogChannel(ctx context.Context, guildID string) (string, error)
 	SetPointLogChannel(ctx context.Context, guildID, channelID string) error
 	SetReminderPresensiChannel(ctx context.Context, guildID, channelID, roleID string) error
@@ -23,40 +20,6 @@ type Setting struct {
 func (s *Setting) Startup() error { return nil }
 
 func (s *Setting) Shutdown() error { return nil }
-
-func (s *Setting) SetSuperAdmin(ctx context.Context, guildID, userIDs string) error {
-	listUserID := strings.Split(userIDs, ",")
-
-	err := s.SettingRepository.SetValue(ctx, guildID, setting.SUPER_ADMIN, listUserID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *Setting) IsSuperAdmin(ctx context.Context, guildID string, roles []string) bool {
-	isAdmin := false
-	admins := make([]string, 0)
-
-	err := s.SettingRepository.GetByKey(ctx, guildID, setting.SUPER_ADMIN, &admins)
-	if err != nil {
-		return false
-	}
-
-	if len(admins) == 0 {
-		return false
-	}
-
-	for _, role := range roles {
-		if contains(admins, role) {
-			isAdmin = true
-			break
-		}
-	}
-
-	return isAdmin
-}
 
 func (s *Setting) GetPointLogChannel(ctx context.Context, guildID string) (string, error) {
 	var channelID string

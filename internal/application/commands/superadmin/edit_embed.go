@@ -1,26 +1,71 @@
 package superadmin
 
 import (
-	"context"
+	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func (c *CommandSuperAdmin) EditEmbed(s *discordgo.Session, i *discordgo.InteractionCreate) {
+type EditEmbedCommand struct {
+	AppCommand        *discordgo.ApplicationCommand
+	CommandSuperAdmin *Command `inject:"commandSuperAdmin"`
+
+	MessageService service.MessageService `inject:"messageService"`
+}
+
+func (c *EditEmbedCommand) Startup() error {
+	c.AppCommand = &discordgo.ApplicationCommand{
+		Name:        "edit_embed",
+		Description: "Edit embed message",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Name:        "message_id",
+				Description: "Message that will be edited",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    true,
+			},
+			{
+				Name:        "title",
+				Description: "Message title",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    false,
+			},
+			{
+				Name:        "content",
+				Description: "Message content \"|\" for new line",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    false,
+			},
+			{
+				Name:        "thumbnail",
+				Description: "Thumbnail URL",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    false,
+			},
+		},
+	}
+
+	c.CommandSuperAdmin.AppendCommand(c.AppCommand)
+	c.CommandSuperAdmin.Discord.Bot.AddHandler(c.HandleCommand)
+
+	return nil
+}
+
+func (c *EditEmbedCommand) Shutdown() error { return nil }
+
+func (c *EditEmbedCommand) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Type == discordgo.InteractionApplicationCommand && i.ApplicationCommandData().Name == c.AppCommand.Name {
+		c.Do(s, i.Interaction)
+	}
+}
+
+func (c *EditEmbedCommand) Do(s *discordgo.Session, i *discordgo.Interaction) {
 	var response string
-	ctx := context.Background()
 
 	if i.Type == discordgo.InteractionApplicationCommand {
 		if i.ApplicationCommandData().Name != "edit_embed" {
-			return
-		}
-
-		// Admin only
-		if !c.Command.SettingService.IsSuperAdmin(ctx, i.GuildID, i.Member.Roles) {
-			response := "This command is only for super admin"
-			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 			return
 		}
 
@@ -53,7 +98,7 @@ func (c *CommandSuperAdmin) EditEmbed(s *discordgo.Session, i *discordgo.Interac
 		if err != nil {
 			logger.Error(err.Error(), err)
 			response = "Something went wrong, please try again later"
-			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			c.MessageService.SendStandardResponse(i, response, true, false)
 			return
 		}
 
@@ -87,11 +132,11 @@ func (c *CommandSuperAdmin) EditEmbed(s *discordgo.Session, i *discordgo.Interac
 		if err != nil {
 			logger.Error(err.Error(), err)
 			response = "Failed to edit embed"
-			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			c.MessageService.SendStandardResponse(i, response, true, false)
 			return
 		}
 
 		response = "Success to edit embed"
-		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i, response, true, false)
 	}
 }
