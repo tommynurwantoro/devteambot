@@ -52,6 +52,6 @@ func RegisterCommand() {
 	appContainer.RegisterService("titipReviewCommand", new(member.TitipReviewCommand))
 
 	appContainer.RegisterService("commandSuperAdmin", new(superadmin.Command))
-	appContainer.RegisterService("member", new(member.Command))
+	appContainer.RegisterService("commandMember", new(member.Command))
 	// appContainer.RegisterService("event", new(events.Event))
 }
