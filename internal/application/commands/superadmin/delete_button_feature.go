@@ -1,22 +1,59 @@
 package superadmin
 
 import (
-	"context"
+	"devteambot/internal/adapter/discord"
+	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func (c *CommandSuperAdmin) DeleteButtonFeature(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	ctx := context.Background()
-	var response string
+type DeleteButtonFeatureCommand struct {
+	AppCommand        *discordgo.ApplicationCommand
+	CommandSuperAdmin *Command     `inject:"commandSuperAdmin"`
+	Discord           *discord.App `inject:"discord"`
 
-	// Admin only
-	if !c.Command.SettingService.IsSuperAdmin(ctx, i.GuildID, i.Member.Roles) {
-		response := "This command is only for super admin"
-		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
-		return
+	MessageService service.MessageService `inject:"messageService"`
+	SettingService service.SettingService `inject:"settingService"`
+}
+
+func (c *DeleteButtonFeatureCommand) Startup() error {
+	c.AppCommand = &discordgo.ApplicationCommand{
+		Name:        "delete_button_feature",
+		Type:        discordgo.ChatApplicationCommand,
+		Description: "Delete button to existing message claim role",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Name:        "message_id",
+				Description: "Message ID",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    true,
+			},
+			{
+				Name:        "index",
+				Description: "First button is 1",
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Required:    true,
+			},
+		},
 	}
+
+	c.CommandSuperAdmin.AppendCommand(c.AppCommand)
+	c.CommandSuperAdmin.Discord.Bot.AddHandler(c.HandleCommand)
+
+	return nil
+}
+
+func (c *DeleteButtonFeatureCommand) Shutdown() error { return nil }
+
+func (c *DeleteButtonFeatureCommand) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Type == discordgo.InteractionApplicationCommand && i.ApplicationCommandData().Name == c.AppCommand.Name {
+		c.Do(s, i.Interaction)
+	}
+}
+
+func (c *DeleteButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Interaction) {
+	var response string
 
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
@@ -35,10 +72,10 @@ func (c *CommandSuperAdmin) DeleteButtonFeature(s *discordgo.Session, i *discord
 		index = opt.IntValue()
 	}
 
-	m, err := c.Command.Discord.Bot.ChannelMessage(i.ChannelID, messageID)
+	m, err := c.Discord.Bot.ChannelMessage(i.ChannelID, messageID)
 	if err != nil {
 		response = "Something went wrong, please try again later"
-		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i, response, true, false)
 		return
 	}
 
@@ -66,7 +103,7 @@ func (c *CommandSuperAdmin) DeleteButtonFeature(s *discordgo.Session, i *discord
 		if err = actionRow.UnmarshalJSON(data); err != nil {
 			logger.Error(err.Error(), err)
 			response = "Failed to delete button"
-			c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+			c.MessageService.SendStandardResponse(i, response, true, false)
 			return
 		}
 
@@ -89,10 +126,10 @@ func (c *CommandSuperAdmin) DeleteButtonFeature(s *discordgo.Session, i *discord
 	if err != nil {
 		logger.Error(err.Error(), err)
 		response = "Failed to delete button"
-		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i, response, true, false)
 		return
 	}
 
 	response = "Success to delete button"
-	c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+	c.MessageService.SendStandardResponse(i, response, true, false)
 }

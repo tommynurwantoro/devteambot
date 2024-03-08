@@ -1,25 +1,64 @@
 package superadmin
 
 import (
-	"context"
-	"strings"
-
+	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/constant"
 	"devteambot/internal/pkg/logger"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func (c *CommandSuperAdmin) SendEmbed(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	ctx := context.Background()
-	var response string
+type SendEmbedCommand struct {
+	AppCommand        *discordgo.ApplicationCommand
+	CommandSuperAdmin *Command `inject:"commandSuperAdmin"`
 
-	// Admin only
-	if !c.Command.SettingService.IsSuperAdmin(ctx, i.GuildID, i.Member.Roles) {
-		response := "This command is only for super admin"
-		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
-		return
+	MessageService service.MessageService `inject:"messageService"`
+}
+
+func (c *SendEmbedCommand) Startup() error {
+	c.AppCommand = &discordgo.ApplicationCommand{
+		Name:        "send_embed",
+		Type:        discordgo.ChatApplicationCommand,
+		Description: "Send embed message",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Name:        "title",
+				Description: "Message title",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    true,
+			},
+			{
+				Name:        "content",
+				Description: "Message content \"|\" for new line",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    false,
+			},
+			{
+				Name:        "thumbnail",
+				Description: "Thumbnail URL",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Required:    false,
+			},
+		},
 	}
+
+	c.CommandSuperAdmin.AppendCommand(c.AppCommand)
+	c.CommandSuperAdmin.Discord.Bot.AddHandler(c.HandleCommand)
+
+	return nil
+}
+
+func (c *SendEmbedCommand) Shutdown() error { return nil }
+
+func (c *SendEmbedCommand) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Type == discordgo.InteractionApplicationCommand && i.ApplicationCommandData().Name == c.AppCommand.Name {
+		c.Do(s, i.Interaction)
+	}
+}
+
+func (c *SendEmbedCommand) Do(s *discordgo.Session, i *discordgo.Interaction) {
+	var response string
 
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
@@ -56,14 +95,13 @@ func (c *CommandSuperAdmin) SendEmbed(s *discordgo.Session, i *discordgo.Interac
 	}
 
 	_, err := s.ChannelMessageSendComplex(i.ChannelID, message)
-
 	if err != nil {
 		logger.Error(err.Error(), err)
 		response = "Failed to send embed"
-		c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+		c.MessageService.SendStandardResponse(i, response, true, false)
 		return
 	}
 
 	response = "Success to send embed"
-	c.Command.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+	c.MessageService.SendStandardResponse(i, response, true, false)
 }

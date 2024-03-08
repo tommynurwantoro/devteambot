@@ -1,17 +1,16 @@
 package bootstrap
 
 import (
-	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	"devteambot/config"
 	"devteambot/internal/adapter/rest"
 	"devteambot/internal/application/scheduler"
 	"devteambot/internal/pkg/container"
 	"devteambot/internal/pkg/logger"
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/asaskevich/govalidator"
 )
@@ -28,17 +27,6 @@ func Run(conf *config.Config) {
 
 	appContainer.RegisterService("config", conf)
 
-	superAdmins := make(map[string]bool)
-	admins := make(map[string]bool)
-	// for _, id := range conf.Discord.SuperAdminRoleIDs {
-	// 	superAdmins[id] = true
-	// }
-	// for _, id := range conf.Discord.AdminRoleIDs {
-	// 	admins[id] = true
-	// }
-	appContainer.RegisterService("superAdmins", superAdmins)
-	appContainer.RegisterService("admins", admins)
-
 	// Dependency Injection
 	// Adapter
 	RegisterDatabase()
@@ -49,9 +37,9 @@ func Run(conf *config.Config) {
 	RegisterRest()
 
 	// Domain
-	RegisterSetting()
-	RegisterReview()
 	RegisterPoint()
+	RegisterReview()
+	RegisterSetting()
 
 	// Application
 	RegisterService()

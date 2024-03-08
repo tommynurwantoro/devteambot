@@ -10,16 +10,20 @@ import (
 	"strings"
 )
 
-type PresensiService struct {
+type PresensiService interface {
+	SendReminder(ctx context.Context) error
+}
+
+type Presensi struct {
 	Discord           *discord.App       `inject:"discord"`
 	SettingRepository setting.Repository `inject:"settingRepository"`
 }
 
-func (s *PresensiService) Startup() error { return nil }
+func (s *Presensi) Startup() error { return nil }
 
-func (s *PresensiService) Shutdown() error { return nil }
+func (s *Presensi) Shutdown() error { return nil }
 
-func (s *PresensiService) SendReminder(ctx context.Context) error {
+func (s *Presensi) SendReminder(ctx context.Context) error {
 	settings, err := s.SettingRepository.GetAllByKey(ctx, setting.REMINDER_PRESENSI)
 	if err != nil {
 		return err

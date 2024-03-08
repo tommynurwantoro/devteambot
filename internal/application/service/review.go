@@ -11,15 +11,22 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-type ReviewService struct {
+type ReviewService interface {
+	GetAntrian(ctx context.Context, guildID string) (review.Reviews, error)
+	UpdateDone(ctx context.Context, r *review.Review, reviewerID string) error
+	AddReviewer(ctx context.Context, guildID, userID, title, url string, reviewers []string) error
+	PrettyAntrian(reviews review.Reviews) (string, *discordgo.MessageEmbed)
+}
+
+type Review struct {
 	ReviewRepository review.Repository `inject:"reviewRepository"`
 }
 
-func (s *ReviewService) Startup() error { return nil }
+func (s *Review) Startup() error { return nil }
 
-func (s *ReviewService) Shutdown() error { return nil }
+func (s *Review) Shutdown() error { return nil }
 
-func (s *ReviewService) GetAntrian(ctx context.Context, guildID string) (review.Reviews, error) {
+func (s *Review) GetAntrian(ctx context.Context, guildID string) (review.Reviews, error) {
 	listReview, err := s.ReviewRepository.GetAllPendingByGuildID(ctx, guildID)
 	if err != nil {
 		return nil, err
@@ -28,7 +35,7 @@ func (s *ReviewService) GetAntrian(ctx context.Context, guildID string) (review.
 	return listReview, nil
 }
 
-func (s *ReviewService) UpdateDone(ctx context.Context, r *review.Review, reviewerID string) error {
+func (s *Review) UpdateDone(ctx context.Context, r *review.Review, reviewerID string) error {
 	newReviewer := make([]string, 0)
 	found := false
 	for _, s := range r.Reviewer {
@@ -54,7 +61,7 @@ func (s *ReviewService) UpdateDone(ctx context.Context, r *review.Review, review
 	return nil
 }
 
-func (s *ReviewService) AddReviewer(ctx context.Context, guildID, userID, title, url string, reviewers []string) error {
+func (s *Review) AddReviewer(ctx context.Context, guildID, userID, title, url string, reviewers []string) error {
 	r := &review.Review{
 		Entity:       entity.NewEntity(),
 		GuildID:      guildID,
@@ -72,7 +79,7 @@ func (s *ReviewService) AddReviewer(ctx context.Context, guildID, userID, title,
 	return nil
 }
 
-func (s *ReviewService) PrettyAntrian(reviews review.Reviews) (string, *discordgo.MessageEmbed) {
+func (s *Review) PrettyAntrian(reviews review.Reviews) (string, *discordgo.MessageEmbed) {
 	if len(reviews) == 0 {
 		return "", &discordgo.MessageEmbed{
 			Title:       "Antrian Review",

@@ -8,13 +8,19 @@ import (
 	"devteambot/internal/pkg/logger"
 )
 
-type PointService struct {
+type PointService interface {
+	ResetQuota(ctx context.Context) error
+	GetTopTen(ctx context.Context, guildID, category string) (point.Points, error)
+	SendThanks(ctx context.Context, guildID, from, to, core, reason string) error
+}
+
+type Point struct {
 	Cache           cache.Service    `inject:"cache"`
 	RedisKey        redis.RedisKey   `inject:"redisKey"`
 	PointRepository point.Repository `inject:"pointRepository"`
 }
 
-func (s *PointService) ResetQuota(ctx context.Context) error {
+func (s *Point) ResetQuota(ctx context.Context) error {
 	allLimit, err := s.Cache.Keys(ctx, s.RedisKey.AllLimitThanks())
 	if err != nil {
 		logger.Error("Error: "+err.Error(), err)
@@ -33,7 +39,7 @@ func (s *PointService) ResetQuota(ctx context.Context) error {
 	return nil
 }
 
-func (s *PointService) GetTopTen(ctx context.Context, guildID, category string) (point.Points, error) {
+func (s *Point) GetTopTen(ctx context.Context, guildID, category string) (point.Points, error) {
 	topTen, err := s.PointRepository.GetTopTen(ctx, guildID, category)
 	if err != nil {
 		return nil, err
@@ -46,7 +52,7 @@ func (s *PointService) GetTopTen(ctx context.Context, guildID, category string) 
 	return topTen, nil
 }
 
-func (s *PointService) SendThanks(ctx context.Context, guildID, from, to, core, reason string) error {
+func (s *Point) SendThanks(ctx context.Context, guildID, from, to, core, reason string) error {
 	// Cek limit
 	limit := 0
 	if err := s.Cache.Get(ctx, s.RedisKey.LimitThanks(guildID, from), &limit); err != nil && err != cache.ErrNil {

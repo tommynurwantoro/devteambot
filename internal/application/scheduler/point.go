@@ -3,7 +3,7 @@ package scheduler
 import (
 	"context"
 	"devteambot/config"
-	"devteambot/internal/domain/point"
+	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
 	"time"
 
@@ -11,9 +11,9 @@ import (
 )
 
 type PoinScheduler struct {
-	Scheduler    *Scheduler     `inject:"scheduler"`
-	Config       *config.Config `inject:"config"`
-	PointService point.Service  `inject:"pointService"`
+	Scheduler    *Scheduler           `inject:"scheduler"`
+	Config       *config.Config       `inject:"config"`
+	PointService service.PointService `inject:"pointService"`
 }
 
 func (s *PoinScheduler) Startup() error {

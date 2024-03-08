@@ -3,7 +3,7 @@ package scheduler
 import (
 	"context"
 	"devteambot/config"
-	"devteambot/internal/domain/presensi"
+	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
 	"time"
 
@@ -11,9 +11,9 @@ import (
 )
 
 type PresensiScheduler struct {
-	Scheduler       *Scheduler       `inject:"scheduler"`
-	Config          *config.Config   `inject:"config"`
-	PresensiService presensi.Service `inject:"presensiService"`
+	Scheduler       *Scheduler              `inject:"scheduler"`
+	Config          *config.Config          `inject:"config"`
+	PresensiService service.PresensiService `inject:"presensiService"`
 }
 
 func (s *PresensiScheduler) Startup() error {
