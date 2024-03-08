@@ -2,8 +2,6 @@ module devteambot
 
 go 1.21
 
-toolchain go1.21.3
-
 require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/bwmarrin/discordgo v0.26.1
