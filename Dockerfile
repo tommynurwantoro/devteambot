@@ -1,21 +1,25 @@
-FROM golang:1.15.0-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 LABEL maintainer="Tommy Nurwantoro <tommy.nurwantoro@gmail.com>"
 
-# Install shell requirement
-RUN apk update && apk upgrade && apk add --no-cache git tzdata ca-certificates
+WORKDIR /go/src/app
+ADD . /go/src/app
 
-ADD . /app/devteambot
-WORKDIR /app/devteambot
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./main
 
-RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-s -w" -o devteambot main.go
 
 FROM alpine:latest
-WORKDIR /app/devteambot
 
-COPY --from=builder /app/devteambot/devteambot /app/devteambot/devteambot
-COPY --from=builder /app/devteambot/config.yaml /app/devteambot/config.yaml
+LABEL maintainer="Tommy Nurwantoro <tommy.nurwantoro@gmail.com>"
 
-EXPOSE 8000
-ENTRYPOINT [ "./devteambot", "svc", "--config=config.yaml" ]
+RUN apk add --no-cache tzdata
+ENV TZ=Asia/Jakarta
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+WORKDIR /app
+
+COPY --from=builder /go/src/app/config.yaml /app/config.yaml
+COPY --from=builder /go/src/app/main /app/main
+
+EXPOSE 9050
+ENTRYPOINT [ "./main", "service" ]

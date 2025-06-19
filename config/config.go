@@ -1,7 +1,12 @@
 package config
 
 import (
+	"fmt"
+	"os"
+	"strings"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -73,4 +78,42 @@ type Scheduler struct {
 		Minute uint
 		Second uint
 	}
+}
+
+func (c *Config) Load(path string) {
+	viper.AddConfigPath(".")
+	viper.SetConfigName(path)
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Println("fatal error config file: default \n", err)
+		os.Exit(1)
+	}
+
+	for _, k := range viper.AllKeys() {
+		value := viper.GetString(k)
+		if strings.HasPrefix(value, "${") && strings.HasSuffix(value, "}") {
+			viper.Set(k, getEnvOrPanic(strings.TrimSuffix(strings.TrimPrefix(value, "${"), "}")))
+		}
+	}
+
+	err = viper.Unmarshal(c)
+	if err != nil {
+		fmt.Println("fatal error config file: default \n", err)
+		os.Exit(1)
+	}
+}
+
+func getEnvOrPanic(env string) string {
+	split := strings.Split(env, ":")
+	res := os.Getenv(split[0])
+	if len(res) == 0 {
+		if len(split) > 1 {
+			res = strings.Join(split[1:], ":")
+		}
+		if len(res) == 0 {
+			panic("Mandatory env variable not found:" + env)
+		}
+	}
+	return res
 }
