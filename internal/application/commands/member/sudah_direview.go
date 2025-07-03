@@ -96,8 +96,12 @@ func (c *SudahDireviewCommand) Do(i *discordgo.Interaction) {
 			}
 
 			_, embed := c.ReviewService.PrettyAntrian(reviews)
+			message := &discordgo.MessageSend{
+				Content: response,
+				Embeds:  []*discordgo.MessageEmbed{embed},
+			}
 
-			c.MessageService.SendEmbedResponse(i, response, embed, false)
+			c.MessageService.SendEmbedResponse(i, message, false)
 			return
 		}
 	}

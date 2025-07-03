@@ -11,12 +11,14 @@ import (
 type MessageService interface {
 	SendStandardResponse(i *discordgo.Interaction, response string, isPrivate, isRemovePreview bool)
 	EditStandardResponse(i *discordgo.Interaction, response string)
-	SendEmbedResponse(i *discordgo.Interaction, content string, embed *discordgo.MessageEmbed, isPrivate bool)
+	SendEmbedResponse(i *discordgo.Interaction, message *discordgo.MessageSend, isPrivate bool)
+	EditEmbedResponse(i *discordgo.Interaction, message *discordgo.MessageSend)
 	SendStandardMessage(channelID, message string) error
 	SendEmbedMessage(channelID string, message *discordgo.MessageSend) error
 	EditEmbedMessage(message *discordgo.MessageEdit) error
 	DeleteMessage(channelID, messageID string) error
 	SendDMMessage(userID, m string) error
+	SendModalResponse(i *discordgo.Interaction, modal *discordgo.InteractionResponseData)
 }
 
 type Message struct {
@@ -52,10 +54,11 @@ func (s *Message) EditStandardResponse(i *discordgo.Interaction, response string
 	}
 }
 
-func (s *Message) SendEmbedResponse(i *discordgo.Interaction, content string, embed *discordgo.MessageEmbed, isPrivate bool) {
+func (s *Message) SendEmbedResponse(i *discordgo.Interaction, message *discordgo.MessageSend, isPrivate bool) {
 	data := &discordgo.InteractionResponseData{
-		Content: content,
-		Embeds:  []*discordgo.MessageEmbed{embed},
+		Content:    message.Content,
+		Embeds:     message.Embeds,
+		Components: message.Components,
 		AllowedMentions: &discordgo.MessageAllowedMentions{
 			Parse: []discordgo.AllowedMentionType{
 				discordgo.AllowedMentionTypeUsers,
@@ -72,6 +75,16 @@ func (s *Message) SendEmbedResponse(i *discordgo.Interaction, content string, em
 		Data: data,
 	}); err != nil {
 		logger.Error("Error to send embed message", err)
+	}
+}
+
+func (s *Message) EditEmbedResponse(i *discordgo.Interaction, message *discordgo.MessageSend) {
+	if _, err := s.App.Bot.InteractionResponseEdit(i, &discordgo.WebhookEdit{
+		Content:    &message.Content,
+		Embeds:     &message.Embeds,
+		Components: &message.Components,
+	}); err != nil {
+		logger.Error("Error to edit embed message", err)
 	}
 }
 
@@ -124,4 +137,13 @@ func (s *Message) SendDMMessage(userID, m string) error {
 	}
 
 	return nil
+}
+
+func (s *Message) SendModalResponse(i *discordgo.Interaction, modal *discordgo.InteractionResponseData) {
+	if err := s.App.Bot.InteractionRespond(i, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseModal,
+		Data: modal,
+	}); err != nil {
+		logger.Error("Error to send modal response", err)
+	}
 }

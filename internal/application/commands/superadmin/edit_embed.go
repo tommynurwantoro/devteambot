@@ -122,8 +122,8 @@ func (c *EditEmbedCommand) Do(s *discordgo.Session, i *discordgo.Interaction) {
 
 		editMessage := &discordgo.MessageEdit{
 			Content:    &existingMessage.Content,
-			Components: existingMessage.Components,
-			Embeds:     existingMessage.Embeds,
+			Components: &existingMessage.Components,
+			Embeds:     &existingMessage.Embeds,
 			ID:         existingMessage.ID,
 			Channel:    existingMessage.ChannelID,
 		}

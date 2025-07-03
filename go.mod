@@ -1,10 +1,10 @@
 module devteambot
 
-go 1.21
+go 1.23.0
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/bwmarrin/discordgo v0.26.1
+	github.com/bwmarrin/discordgo v0.29.0
 	github.com/facebookgo/inject v0.0.0-20180706035515-f23751cae28b
 	github.com/go-co-op/gocron/v2 v2.1.0
 	github.com/go-resty/resty/v2 v2.7.0
@@ -43,7 +43,7 @@ require (
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
-	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -73,13 +73,13 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/oauth2 v0.13.0 // indirect
-	golang.org/x/sync v0.4.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20231016165738-49dd2c1f3d0b // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231016165738-49dd2c1f3d0b // indirect

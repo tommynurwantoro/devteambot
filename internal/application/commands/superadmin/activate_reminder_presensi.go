@@ -3,7 +3,10 @@ package superadmin
 import (
 	"context"
 	"devteambot/internal/application/service"
+	"devteambot/internal/pkg/cache"
 	"devteambot/internal/pkg/logger"
+	"fmt"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -12,32 +15,12 @@ type ActivateReminderPresensiCommand struct {
 	AppCommand        *discordgo.ApplicationCommand
 	CommandSuperAdmin *Command `inject:"commandSuperAdmin"`
 
+	CacheService   cache.Service          `inject:"cache"`
 	MessageService service.MessageService `inject:"messageService"`
 	SettingService service.SettingService `inject:"settingService"`
 }
 
 func (c *ActivateReminderPresensiCommand) Startup() error {
-	c.AppCommand = &discordgo.ApplicationCommand{
-		Name:        "activate_reminder_presensi",
-		Type:        discordgo.ChatApplicationCommand,
-		Description: "Activate reminder presensi feature",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Name:        "channel",
-				Description: "Channel for the reminder",
-				Type:        discordgo.ApplicationCommandOptionChannel,
-				Required:    true,
-			},
-			{
-				Name:        "role",
-				Description: "Reminder presensi will mention this role",
-				Type:        discordgo.ApplicationCommandOptionRole,
-				Required:    true,
-			},
-		},
-	}
-
-	c.CommandSuperAdmin.AppendCommand(c.AppCommand)
 	c.CommandSuperAdmin.Discord.Bot.AddHandler(c.HandleCommand)
 
 	return nil
@@ -46,38 +29,135 @@ func (c *ActivateReminderPresensiCommand) Startup() error {
 func (c *ActivateReminderPresensiCommand) Shutdown() error { return nil }
 
 func (c *ActivateReminderPresensiCommand) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	if i.Type == discordgo.InteractionApplicationCommand && i.ApplicationCommandData().Name == c.AppCommand.Name {
-		c.Do(s, i.Interaction)
+	if i.Type == discordgo.InteractionMessageComponent && strings.HasPrefix(i.MessageComponentData().CustomID, "activate_reminder_presensi_feature") {
+		c.activateButton(s, i.Interaction)
+	} else if i.Type == discordgo.InteractionMessageComponent && strings.HasPrefix(i.MessageComponentData().CustomID, "choose_reminder_presensi_channel") {
+		c.chooseChannel(s, i.Interaction)
+	} else if i.Type == discordgo.InteractionMessageComponent && strings.HasPrefix(i.MessageComponentData().CustomID, "choose_reminder_presensi_role") {
+		c.chooseRole(i.Interaction)
 	}
 }
 
-func (c *ActivateReminderPresensiCommand) Do(s *discordgo.Session, i *discordgo.Interaction) {
-	ctx := context.Background()
+func (c *ActivateReminderPresensiCommand) activateButton(s *discordgo.Session, i *discordgo.Interaction) {
 	var response string
 
-	options := i.ApplicationCommandData().Options
-	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-	for _, option := range options {
-		optionMap[option.Name] = option
-	}
-
-	var channelID, roleID string
-
-	if opt, ok := optionMap["channel"]; ok {
-		channelID = opt.ChannelValue(s).ID
-	}
-
-	if opt, ok := optionMap["role"]; ok {
-		roleID = opt.RoleValue(s, i.GuildID).ID
-	}
-
-	if err := c.SettingService.SetReminderPresensiChannel(ctx, i.GuildID, channelID, roleID); err != nil {
-		response = "Failed to activate reminder"
+	channels, err := s.GuildChannels(i.GuildID)
+	if err != nil {
+		response = "Failed to get channels"
 		logger.Error(response, err)
 		c.MessageService.SendStandardResponse(i, response, true, false)
 		return
 	}
 
-	response = "Success to activate reminder"
+	channelOptions := []discordgo.SelectMenuOption{}
+	for _, channel := range channels {
+		channelOptions = append(channelOptions, discordgo.SelectMenuOption{
+			Label: channel.Name,
+			Value: channel.ID,
+		})
+	}
+
+	// choose channel
+	embedMessage := &discordgo.MessageSend{
+		Content: "Please choose which channel you will use to send reminders",
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.SelectMenu{
+						CustomID: "choose_reminder_presensi_channel",
+						Options:  channelOptions,
+					},
+				},
+			},
+		},
+	}
+
+	c.MessageService.SendEmbedResponse(i, embedMessage, false)
+}
+
+func (c *ActivateReminderPresensiCommand) chooseChannel(s *discordgo.Session, i *discordgo.Interaction) {
+	var response string
+
+	channelID := i.MessageComponentData().Values[0]
+
+	key := fmt.Sprintf("reminder_presensi_channel_%s", i.GuildID)
+	if err := c.CacheService.Put(context.Background(), key, channelID, 0); err != nil {
+		response = "Failed to set reminder presensi channel"
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i, response, true, false)
+		return
+	}
+
+	roles, err := s.GuildRoles(i.GuildID)
+	if err != nil {
+		response = "Failed to get roles"
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i, response, true, false)
+		return
+	}
+
+	roleOptions := []discordgo.SelectMenuOption{}
+	for _, role := range roles {
+		roleOptions = append(roleOptions, discordgo.SelectMenuOption{
+			Label: role.Name,
+			Value: role.ID,
+		})
+	}
+
+	// choose role
+	content := "Please choose which role you will use to send reminder"
+	components := []discordgo.MessageComponent{
+		discordgo.ActionsRow{
+			Components: []discordgo.MessageComponent{
+				discordgo.SelectMenu{
+					CustomID: "choose_reminder_presensi_role",
+					Options:  roleOptions,
+				},
+			},
+		},
+	}
+
+	c.MessageService.SendEmbedResponse(i, &discordgo.MessageSend{
+		Content:    content,
+		Components: components,
+	}, false)
+
+	if err := c.MessageService.DeleteMessage(i.Message.ChannelID, i.Message.ID); err != nil {
+		logger.Error("Failed to delete previous message", err)
+		return
+	}
+}
+
+func (c *ActivateReminderPresensiCommand) chooseRole(i *discordgo.Interaction) {
+	var response string
+	var channelID string
+
+	roleID := i.MessageComponentData().Values[0]
+
+	key := fmt.Sprintf("reminder_presensi_channel_%s", i.GuildID)
+	if err := c.CacheService.Get(context.Background(), key, &channelID); err != nil {
+		response = "Failed to get reminder presensi channel"
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i, response, true, false)
+		return
+	}
+
+	if err := c.SettingService.SetReminderPresensiChannel(context.Background(), i.GuildID, channelID, roleID); err != nil {
+		response = "Failed to set reminder presensi channel"
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i, response, true, false)
+		return
+	}
+
+	if _, err := c.CacheService.Delete(context.Background(), key); err != nil {
+		logger.Error(response, err)
+	}
+
+	response = "Success to set reminder presensi channel"
 	c.MessageService.SendStandardResponse(i, response, true, false)
+
+	if err := c.MessageService.DeleteMessage(i.Message.ChannelID, i.Message.ID); err != nil {
+		logger.Error("Failed to delete previous message", err)
+		return
+	}
 }

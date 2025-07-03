@@ -21,6 +21,7 @@ type Config struct {
 	Discord       Discord              `valid:"required"`
 	Schedulers    map[string]Scheduler `valid:"required"`
 	GoogleAI      GoogleAIConfig       `valid:"required"`
+	N8N           N8NConfig            `valid:"required"`
 }
 
 type HttpConfig struct {
@@ -38,10 +39,9 @@ type Logger struct {
 }
 
 type Discord struct {
-	AppID            string `valid:"required"`
-	Token            string `valid:"required"`
-	RunInitCommand   bool
-	RunDeleteCommand bool
+	AppID           string `valid:"required"`
+	Token           string `valid:"required"`
+	RunResetCommand bool
 }
 
 type Role struct {
@@ -80,9 +80,17 @@ type Scheduler struct {
 	}
 }
 
-func (c *Config) Load(path string) {
+type N8NConfig struct {
+	BaseURL   string `valid:"required"`
+	Username  string `valid:"required"`
+	Password  string `valid:"required"`
+	WebhookID string `valid:"required"`
+}
+
+func (c *Config) Load() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
-	viper.SetConfigName(path)
 
 	err := viper.ReadInConfig()
 	if err != nil {

@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"devteambot/internal/adapter/discord"
 	"devteambot/internal/adapter/google"
+	"devteambot/internal/adapter/n8n"
 	"devteambot/internal/adapter/repository"
 	"devteambot/internal/adapter/repository/redis"
 	"devteambot/internal/adapter/rest"
@@ -20,6 +21,7 @@ func RegisterCache() {
 
 func RegisterAI() {
 	appContainer.RegisterService("googleai", new(google.AI))
+	appContainer.RegisterService("n8n", new(n8n.N8N))
 }
 
 func RegisterRest() {

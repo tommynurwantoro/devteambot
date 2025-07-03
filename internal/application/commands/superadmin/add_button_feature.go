@@ -137,8 +137,8 @@ func (c *AddButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Interact
 	}
 
 	message := &discordgo.MessageEdit{
-		Embeds:     m.Embeds,
-		Components: []discordgo.MessageComponent{},
+		Embeds:     &m.Embeds,
+		Components: &[]discordgo.MessageComponent{},
 		ID:         messageID,
 		Channel:    i.ChannelID,
 	}
@@ -147,7 +147,7 @@ func (c *AddButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Interact
 
 	for _, comp := range m.Components {
 		if len(components) == 5 {
-			message.Components = append(message.Components, discordgo.ActionsRow{
+			*message.Components = append(*message.Components, discordgo.ActionsRow{
 				Components: components,
 			})
 
@@ -169,7 +169,7 @@ func (c *AddButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Interact
 
 	for _, button := range buttons {
 		if len(components) == 5 {
-			message.Components = append(message.Components, discordgo.ActionsRow{
+			*message.Components = append(*message.Components, discordgo.ActionsRow{
 				Components: components,
 			})
 
@@ -188,7 +188,7 @@ func (c *AddButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Interact
 		iconID := split[3]
 
 		components = append(components, discordgo.Button{
-			Emoji: discordgo.ComponentEmoji{
+			Emoji: &discordgo.ComponentEmoji{
 				Name:     iconName,
 				ID:       iconID,
 				Animated: false,
@@ -200,7 +200,7 @@ func (c *AddButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Interact
 	}
 
 	if len(components) > 0 {
-		message.Components = append(message.Components, discordgo.ActionsRow{
+		*message.Components = append(*message.Components, discordgo.ActionsRow{
 			Components: components,
 		})
 	}

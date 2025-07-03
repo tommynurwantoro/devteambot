@@ -4,6 +4,7 @@ import (
 	"context"
 	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -17,21 +18,6 @@ type ActivatePointCommand struct {
 }
 
 func (c *ActivatePointCommand) Startup() error {
-	c.AppCommand = &discordgo.ApplicationCommand{
-		Name:        "activate_point_feature",
-		Type:        discordgo.ChatApplicationCommand,
-		Description: "Activate point feature",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Name:        "channel_id",
-				Description: "Channel",
-				Type:        discordgo.ApplicationCommandOptionChannel,
-				Required:    true,
-			},
-		},
-	}
-
-	c.CommandSuperAdmin.AppendCommand(c.AppCommand)
 	c.CommandSuperAdmin.Discord.Bot.AddHandler(c.HandleCommand)
 
 	return nil
@@ -40,34 +26,144 @@ func (c *ActivatePointCommand) Startup() error {
 func (c *ActivatePointCommand) Shutdown() error { return nil }
 
 func (c *ActivatePointCommand) HandleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	if i.Type == discordgo.InteractionApplicationCommand && i.ApplicationCommandData().Name == c.AppCommand.Name {
-		c.Do(s, i.Interaction)
+	if i.Type == discordgo.InteractionMessageComponent && strings.HasPrefix(i.MessageComponentData().CustomID, "activate_point_feature") {
+		c.activateButton(s, i)
+	} else if i.Type == discordgo.InteractionMessageComponent && strings.HasPrefix(i.MessageComponentData().CustomID, "choose_thanks_channel") {
+		c.chooseThanksChannel(s, i)
+	} else if i.Type == discordgo.InteractionMessageComponent && strings.HasPrefix(i.MessageComponentData().CustomID, "choose_point_log_channel") {
+		c.choosePointLogChannel(i)
 	}
 }
 
-func (c *ActivatePointCommand) Do(s *discordgo.Session, i *discordgo.Interaction) {
-	ctx := context.Background()
+func (c *ActivatePointCommand) activateButton(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	var response string
 
-	options := i.ApplicationCommandData().Options
-	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-	for _, option := range options {
-		optionMap[option.Name] = option
-	}
-
-	var channelID string
-
-	if opt, ok := optionMap["channel_id"]; ok {
-		channelID = opt.ChannelValue(s).ID
-	}
-
-	if err := c.SettingService.SetPointLogChannel(ctx, i.GuildID, channelID); err != nil {
-		response = "Failed to activate point feature"
+	channels, err := s.GuildChannels(i.GuildID)
+	if err != nil {
+		response = "Failed to get channels"
 		logger.Error(response, err)
-		c.MessageService.SendStandardResponse(i, response, true, false)
+		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 		return
 	}
 
-	response = "Success to activate point feature"
-	c.MessageService.SendStandardResponse(i, response, true, false)
+	channelOptions := []discordgo.SelectMenuOption{}
+	for _, channel := range channels {
+		channelOptions = append(channelOptions, discordgo.SelectMenuOption{
+			Label: channel.Name,
+			Value: channel.ID,
+		})
+	}
+
+	// choose channel
+	embedMessage := &discordgo.MessageSend{
+		Content: "Please choose which channel you will use use thanks feature",
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.SelectMenu{
+						CustomID: "choose_thanks_channel",
+						Options:  channelOptions,
+					},
+				},
+			},
+		},
+	}
+
+	c.MessageService.SendEmbedResponse(i.Interaction, embedMessage, false)
+}
+
+func (c *ActivatePointCommand) chooseThanksChannel(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	var response string
+
+	channelID := i.MessageComponentData().Values[0]
+
+	// send embed message
+	embedMessage := &discordgo.MessageSend{
+		Embeds: []*discordgo.MessageEmbed{
+			{
+				Title:       "Thanks",
+				Description: "Use button below to send thanks",
+				Color:       0x0099ff,
+			},
+		},
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.Button{
+						Label:    "Send Thanks",
+						Style:    discordgo.SuccessButton,
+						CustomID: "send_thanks",
+						Disabled: false,
+					},
+				},
+			},
+		},
+	}
+
+	if err := c.MessageService.SendEmbedMessage(channelID, embedMessage); err != nil {
+		logger.Error("Failed to send embed message", err)
+		c.MessageService.SendStandardResponse(i.Interaction, "Failed to send embed message", true, false)
+		return
+	}
+
+	channels, err := s.GuildChannels(i.GuildID)
+	if err != nil {
+		response = "Failed to get channels"
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
+		return
+	}
+
+	channelOptions := []discordgo.SelectMenuOption{}
+	for _, channel := range channels {
+		channelOptions = append(channelOptions, discordgo.SelectMenuOption{
+			Label: channel.Name,
+			Value: channel.ID,
+		})
+	}
+
+	// choose channel
+	embedMessage = &discordgo.MessageSend{
+		Content: "Please choose which channel you will use to send 🍪 log",
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.SelectMenu{
+						CustomID: "choose_point_log_channel",
+						Options:  channelOptions,
+					},
+				},
+			},
+		},
+	}
+
+	c.MessageService.SendEmbedResponse(i.Interaction, embedMessage, false)
+
+	if err := c.MessageService.DeleteMessage(i.Message.ChannelID, i.Message.ID); err != nil {
+		logger.Error("Failed to delete previous message", err)
+		return
+	}
+}
+
+func (c *ActivatePointCommand) choosePointLogChannel(i *discordgo.InteractionCreate) {
+	var response string
+
+	channelID := i.MessageComponentData().Values[0]
+
+	if err := c.SettingService.SetPointLogChannel(context.Background(), i.GuildID, channelID); err != nil {
+		response = "Failed to set 🍪 log channel"
+		logger.Error(response, err)
+		c.MessageService.EditStandardResponse(i.Interaction, response)
+		return
+	}
+
+	response = "Success to set 🍪 log channel"
+
+	// delete previous message
+	if err := c.MessageService.DeleteMessage(i.Message.ChannelID, i.Message.ID); err != nil {
+		logger.Error("Failed to delete previous message", err)
+		return
+	}
+
+	c.MessageService.SendStandardResponse(i.Interaction, response, true, false)
 }

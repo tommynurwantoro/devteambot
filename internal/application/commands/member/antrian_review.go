@@ -50,6 +50,10 @@ func (c *AntrianReviewCommand) Do(i *discordgo.Interaction) {
 	}
 
 	content, embed := c.ReviewService.PrettyAntrian(reviews)
+	message := &discordgo.MessageSend{
+		Content: content,
+		Embeds:  []*discordgo.MessageEmbed{embed},
+	}
 
-	c.MessageService.SendEmbedResponse(i, content, embed, false)
+	c.MessageService.SendEmbedResponse(i, message, false)
 }

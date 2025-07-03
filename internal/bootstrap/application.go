@@ -5,6 +5,7 @@ import (
 	"devteambot/internal/application/api"
 	"devteambot/internal/application/commands/member"
 	"devteambot/internal/application/commands/superadmin"
+	"devteambot/internal/application/events"
 	"devteambot/internal/application/scheduler"
 	"devteambot/internal/application/service"
 )
@@ -33,6 +34,7 @@ func RegisterAPI() {
 
 func RegisterCommand() {
 	// Superadmin
+	appContainer.RegisterService("panelSettingCommand", new(superadmin.PanelSettingCommand))
 	appContainer.RegisterService("activatePointCommand", new(superadmin.ActivatePointCommand))
 	appContainer.RegisterService("activateReminderPresensiCommand", new(superadmin.ActivateReminderPresensiCommand))
 	appContainer.RegisterService("ActivateReminderSholatCommand", new(superadmin.ActivateReminderSholatCommand))
@@ -50,8 +52,11 @@ func RegisterCommand() {
 	appContainer.RegisterService("thanksCommand", new(member.ThanksCommand))
 	appContainer.RegisterService("thanksLeaderboardCommand", new(member.ThanksLeaderboardCommand))
 	appContainer.RegisterService("titipReviewCommand", new(member.TitipReviewCommand))
+	appContainer.RegisterService("newThanksCommand", new(member.NewThanksCommand))
 
 	appContainer.RegisterService("commandSuperAdmin", new(superadmin.Command))
 	appContainer.RegisterService("commandMember", new(member.Command))
-	// appContainer.RegisterService("event", new(events.Event))
+
+	// events
+	appContainer.RegisterService("generalResponseEvent", new(events.GeneralResponseEvent))
 }

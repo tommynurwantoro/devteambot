@@ -27,10 +27,8 @@ database:
   maxOpenConn: ${DB_MAX_OPEN_CONN:100}
 
 discord:
-  appID: "1133723109548113982"
+  appID: ${DISCORD_APP_ID}
   token: ${DISCORD_TOKEN}
-  runInitCommand: ${DISCORD_RUN_INIT_COMMAND:false}
-  runDeleteCommand: ${DISCORD_RUN_DELETE_COMMAND:false}
 
 redis:
   address: ${REDIS_ADDRESS:127.0.0.1}
@@ -39,6 +37,12 @@ redis:
 
 googleai:
   token: ${GOOGLE_AI_TOKEN}
+
+n8n:
+  baseURL: https://n8n.tommynurwantoro.com
+  username: ${N8N_USERNAME}
+  password: ${N8N_PASSWORD}
+  webhookID: ${N8N_WEBHOOK_ID}
 
 schedulers:
   - sholat-get-today-schedule:

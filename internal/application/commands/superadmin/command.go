@@ -16,8 +16,8 @@ type Command struct {
 }
 
 func (c *Command) Startup() error {
-	if c.Conf.Discord.RunInitCommand {
-		c.RunAddCommand()
+	if c.Conf.Discord.RunResetCommand {
+		c.runAddCommand()
 	}
 
 	return nil
@@ -36,7 +36,7 @@ func (c *Command) AppendCommand(cmd *discordgo.ApplicationCommand) {
 	c.cmdList = append(c.cmdList, cmd)
 }
 
-func (c *Command) RunAddCommand() {
+func (c *Command) runAddCommand() {
 	logger.Info("Adding superadmin commands...")
 	for _, v := range c.cmdList {
 		logger.Info(fmt.Sprintf("Adding command: %v", v.Name))

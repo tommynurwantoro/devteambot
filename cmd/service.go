@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	configFile string
+	runResetCommand bool
 )
 
 var commandService = &cobra.Command{
@@ -21,7 +21,8 @@ var commandService = &cobra.Command{
 		godotenv.Load(".env")
 
 		conf := config.Config{}
-		conf.Load("config")
+		conf.Load()
+		conf.Discord.RunResetCommand = runResetCommand
 
 		loggerConfig := logger.Config{
 			App:           conf.AppName,
@@ -40,7 +41,7 @@ var commandService = &cobra.Command{
 }
 
 func init() {
-	commandService.Flags().StringVar(&configFile, "config", "config", "Set config file path")
+	commandService.Flags().BoolVar(&runResetCommand, "reset-command", false, "Run reset command")
 }
 
 func GetCommand() *cobra.Command {

@@ -80,8 +80,8 @@ func (c *DeleteButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Inter
 	}
 
 	message := &discordgo.MessageEdit{
-		Embeds:     m.Embeds,
-		Components: []discordgo.MessageComponent{},
+		Embeds:     &m.Embeds,
+		Components: &[]discordgo.MessageComponent{},
 		ID:         messageID,
 		Channel:    i.ChannelID,
 	}
@@ -90,7 +90,7 @@ func (c *DeleteButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Inter
 
 	for _, comp := range m.Components {
 		if len(components) == 5 {
-			message.Components = append(message.Components, discordgo.ActionsRow{
+			*message.Components = append(*message.Components, discordgo.ActionsRow{
 				Components: components,
 			})
 
@@ -117,7 +117,7 @@ func (c *DeleteButtonFeatureCommand) Do(s *discordgo.Session, i *discordgo.Inter
 	}
 
 	if len(components) > 0 {
-		message.Components = append(message.Components, discordgo.ActionsRow{
+		*message.Components = append(*message.Components, discordgo.ActionsRow{
 			Components: components,
 		})
 	}
