@@ -124,7 +124,7 @@ func (c *ActivatePointCommand) chooseThanksChannel(s *discordgo.Session, i *disc
 
 	// choose channel
 	embedMessage = &discordgo.MessageSend{
-		Content: "Please choose which channel you will use to send 🍪 log",
+		Content: "Please choose which channel you will use to send point log",
 		Components: []discordgo.MessageComponent{
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
@@ -151,13 +151,13 @@ func (c *ActivatePointCommand) choosePointLogChannel(i *discordgo.InteractionCre
 	channelID := i.MessageComponentData().Values[0]
 
 	if err := c.SettingService.SetPointLogChannel(context.Background(), i.GuildID, channelID); err != nil {
-		response = "Failed to set 🍪 log channel"
+		response = "Failed to set point log channel"
 		logger.Error(response, err)
 		c.MessageService.EditStandardResponse(i.Interaction, response)
 		return
 	}
 
-	response = "Success to set 🍪 log channel"
+	response = "Success to set point log channel"
 
 	// delete previous message
 	if err := c.MessageService.DeleteMessage(i.Message.ChannelID, i.Message.ID); err != nil {

@@ -35,6 +35,20 @@ func (s *Point) ResetQuota(ctx context.Context) error {
 		}
 	}
 
+	allThanksThisWeek, err := s.Cache.Keys(ctx, s.RedisKey.AllThanksThisWeek())
+	if err != nil {
+		logger.Error("Error: "+err.Error(), err)
+		return err
+	}
+
+	for _, t := range allThanksThisWeek {
+		_, err := s.Cache.Delete(ctx, t)
+		if err != nil {
+			logger.Error("Error: "+err.Error(), err)
+			return err
+		}
+	}
+
 	logger.Info("Limit has been reset")
 	return nil
 }

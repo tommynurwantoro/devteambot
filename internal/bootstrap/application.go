@@ -52,7 +52,6 @@ func RegisterCommand() {
 	appContainer.RegisterService("thanksCommand", new(member.ThanksCommand))
 	appContainer.RegisterService("thanksLeaderboardCommand", new(member.ThanksLeaderboardCommand))
 	appContainer.RegisterService("titipReviewCommand", new(member.TitipReviewCommand))
-	appContainer.RegisterService("newThanksCommand", new(member.NewThanksCommand))
 
 	appContainer.RegisterService("commandSuperAdmin", new(superadmin.Command))
 	appContainer.RegisterService("commandMember", new(member.Command))

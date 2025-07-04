@@ -50,7 +50,7 @@ func (c *PanelSettingCommand) Do(s *discordgo.Session, i *discordgo.Interaction)
 						Emoji: &discordgo.ComponentEmoji{
 							Name: "🍪",
 						},
-						Label:    "Activate Cookie Feature",
+						Label:    "Activate Point Feature",
 						Style:    discordgo.PrimaryButton,
 						CustomID: "activate_point_feature",
 					},

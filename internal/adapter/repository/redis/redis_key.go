@@ -8,6 +8,7 @@ const (
 	DailySholatSchedule KeyType = iota
 	LimitThanks
 	AllLimitThanks
+	AllThanksThisWeek
 )
 
 type RedisKey struct {
@@ -19,6 +20,7 @@ func NewRedisKey() RedisKey {
 	key[DailySholatSchedule] = "daily-sholat-schedule"
 	key[LimitThanks] = "limit-thanks-%s-%s"
 	key[AllLimitThanks] = "limit-thanks-*"
+	key[AllThanksThisWeek] = "thanks-this-week-*"
 
 	return RedisKey{key}
 }
@@ -34,5 +36,9 @@ func (c *RedisKey) LimitThanks(guildID, userID string) string {
 }
 
 func (c *RedisKey) AllLimitThanks() string {
-	return c.Key[LimitThanks]
+	return c.Key[AllLimitThanks]
+}
+
+func (c *RedisKey) AllThanksThisWeek() string {
+	return c.Key[AllThanksThisWeek]
 }
