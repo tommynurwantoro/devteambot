@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"devteambot/internal/domain/setting"
+	"errors"
 	"fmt"
+	"strings"
 )
 
 type SettingService interface {
@@ -11,6 +13,8 @@ type SettingService interface {
 	SetPointLogChannel(ctx context.Context, guildID, channelID string) error
 	SetReminderPresensiChannel(ctx context.Context, guildID, channelID, roleID string) error
 	SetReminderSholatChannel(ctx context.Context, guildID, channelID, roleID string) error
+	SetMarketplaceMessage(ctx context.Context, guildID, channelID, mesageID string) error
+	GetMarketplaceMessage(ctx context.Context, guildID string) (string, string, error)
 }
 
 type Setting struct {
@@ -58,12 +62,27 @@ func (s *Setting) SetReminderSholatChannel(ctx context.Context, guildID, channel
 	return nil
 }
 
-func contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
+func (s *Setting) SetMarketplaceMessage(ctx context.Context, guildID, channelID, messageID string) error {
+	value := fmt.Sprintf("%s|%s", channelID, messageID)
+	if err := s.SettingRepository.SetValue(ctx, guildID, setting.MARKETPLACE_MESSAGE, value); err != nil {
+		return err
 	}
 
-	return false
+	return nil
+}
+
+func (s *Setting) GetMarketplaceMessage(ctx context.Context, guildID string) (string, string, error) {
+	var value string
+
+	err := s.SettingRepository.GetByKey(ctx, guildID, setting.MARKETPLACE_MESSAGE, &value)
+	if err != nil {
+		return "", "", err
+	}
+
+	split := strings.Split(value, "|")
+	if len(split) != 2 {
+		return "", "", errors.New("invalid marketplace message")
+	}
+
+	return split[0], split[1], nil
 }

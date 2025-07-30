@@ -72,6 +72,26 @@ func (c *PanelSettingCommand) Do(s *discordgo.Session, i *discordgo.Interaction)
 					},
 				},
 			},
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.Button{
+						Emoji: &discordgo.ComponentEmoji{
+							Name: "💰",
+						},
+						Label:    "Marketplace New Item",
+						Style:    discordgo.PrimaryButton,
+						CustomID: "marketplace_new_item",
+					},
+					discordgo.Button{
+						Emoji: &discordgo.ComponentEmoji{
+							Name: "💰",
+						},
+						Label:    "Marketplace Update Item",
+						Style:    discordgo.PrimaryButton,
+						CustomID: "marketplace_update_item",
+					},
+				},
+			},
 		},
 	}
 

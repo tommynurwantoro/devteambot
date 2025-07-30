@@ -40,6 +40,8 @@ func Run(conf *config.Config) {
 	RegisterPoint()
 	RegisterReview()
 	RegisterSetting()
+	RegisterMarketplace()
+	RegisterThanks()
 
 	// Application
 	RegisterService()

@@ -27,13 +27,7 @@ func (c *AddButtonFeatureCommand) Startup() error {
 				Name:        "command",
 				Description: "Choose feature command",
 				Type:        discordgo.ApplicationCommandOptionString,
-				Choices: []*discordgo.ApplicationCommandOptionChoice{
-					{
-						Name:  "Claim Role",
-						Value: "claim_role",
-					},
-				},
-				Required: true,
+				Required:    true,
 			},
 			{
 				Name:        "message_id",

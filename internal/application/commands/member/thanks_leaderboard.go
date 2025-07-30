@@ -7,7 +7,6 @@ import (
 	"devteambot/internal/pkg/constant"
 	"devteambot/internal/pkg/logger"
 	"fmt"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -56,24 +55,21 @@ func (c *ThanksLeaderboardCommand) Do(i *discordgo.Interaction) {
 		Content: "RUBIC TOP 10 LEADERBOARD",
 	}
 
-	for _, core := range point.Categories() {
-		embed := &discordgo.MessageEmbed{
-			Title: strings.ToUpper(core),
-		}
+	embed := &discordgo.MessageEmbed{
+		Title: "RUBIC TOP 10 LEADERBOARD",
+	}
 
-		topTen, err := c.PointService.GetTopTen(ctx, i.GuildID, core)
-		if err != nil && err != point.ErrDataNotFound {
-			response = "Something went wrong, can not add rubic"
-			logger.Error(response, err)
-			c.MessageService.SendStandardResponse(i, response, true, false)
-			return
-		}
+	topTen, err := c.PointService.GetTopTen(ctx, i.GuildID)
+	if err != nil && err != point.ErrDataNotFound {
+		response = "Something went wrong, can not add rubic"
+		logger.Error(response, err)
+		c.MessageService.SendStandardResponse(i, response, true, false)
+		return
+	}
 
-		if len(topTen) == 0 {
-			embed.Description = "Belum ada data"
-			continue
-		}
-
+	if len(topTen) == 0 {
+		embed.Description = "Belum ada data"
+	} else {
 		for n, t := range topTen {
 			switch n {
 			case 0:
@@ -86,17 +82,16 @@ func (c *ThanksLeaderboardCommand) Do(i *discordgo.Interaction) {
 				embed.Description = fmt.Sprintf("%s#%d <@%s> `Total Rubic: %d`\n", embed.Description, n+1, t.UserID, t.Balance)
 			}
 		}
-
-		embed.Color = constant.GREEN
-		message.Embeds = append(message.Embeds, embed)
 	}
+
+	embed.Color = constant.GREEN
+	message.Embeds = append(message.Embeds, embed)
 
 	if len(message.Embeds) == 0 {
 		message.Content = "Belum ada data"
 	}
 
-	err := c.MessageService.SendEmbedMessage(i.ChannelID, message)
-	if err != nil {
+	if err := c.MessageService.SendEmbedMessage(i.ChannelID, message); err != nil {
 		response = "Failed to send embed"
 		logger.Error(response, err)
 		c.MessageService.SendStandardResponse(i, response, true, false)

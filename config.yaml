@@ -29,6 +29,7 @@ database:
 discord:
   appID: ${DISCORD_APP_ID}
   token: ${DISCORD_TOKEN}
+  runResetCommand: ${DISCORD_RUN_RESET_COMMAND:false}
 
 redis:
   address: ${REDIS_ADDRESS:127.0.0.1}

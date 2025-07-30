@@ -63,6 +63,7 @@ func (c *ActivateReminderSholatCommand) activateButton(s *discordgo.Session, i *
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					discordgo.SelectMenu{
+						MenuType: discordgo.ChannelSelectMenu,
 						CustomID: "choose_reminder_sholat_channel",
 						Options:  channelOptions,
 					},
@@ -109,6 +110,7 @@ func (c *ActivateReminderSholatCommand) chooseChannel(s *discordgo.Session, i *d
 		discordgo.ActionsRow{
 			Components: []discordgo.MessageComponent{
 				discordgo.SelectMenu{
+					MenuType: discordgo.RoleSelectMenu,
 					CustomID: "choose_reminder_sholat_role",
 					Options:  roleOptions,
 				},

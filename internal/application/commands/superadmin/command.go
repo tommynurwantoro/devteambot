@@ -26,7 +26,7 @@ func (c *Command) Startup() error {
 func (c *Command) Shutdown() error { return nil }
 
 func (c *Command) AppendCommand(cmd *discordgo.ApplicationCommand) {
-	serverManager := int64(discordgo.PermissionManageServer)
+	serverManager := int64(discordgo.PermissionBanMembers)
 	dmPermission := new(bool)
 	*dmPermission = false
 

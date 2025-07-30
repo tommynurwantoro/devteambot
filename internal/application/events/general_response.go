@@ -6,6 +6,7 @@ import (
 	"devteambot/internal/adapter/n8n"
 	"devteambot/internal/application/service"
 	"devteambot/internal/pkg/logger"
+	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -58,7 +59,8 @@ func (e *GeneralResponseEvent) Do(s *discordgo.Session, m *discordgo.MessageCrea
 	if m.ReferencedMessage != nil {
 		refMessage := m.ReferencedMessage
 		if refMessage.Author.ID == s.State.User.ID || mentionBullster {
-			chat, err := e.N8N.GenerateResponse(context.Background(), m.Author.ID, m.GuildID, m.Content)
+			content := fmt.Sprintf("Referenced message from you (agent): '%s' --- User reply: '%s'", refMessage.Content, m.Content)
+			chat, err := e.N8N.GenerateResponse(context.Background(), m.Author.ID, m.GuildID, content)
 			if err != nil {
 				logger.Error("GeneralResponseEvent.Do", err)
 				return

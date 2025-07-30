@@ -15,3 +15,11 @@ func RegisterReview() {
 func RegisterPoint() {
 	appContainer.RegisterService("pointRepository", new(gorm.PointRepository))
 }
+
+func RegisterMarketplace() {
+	appContainer.RegisterService("marketplaceRepository", new(gorm.MarketplaceRepository))
+}
+
+func RegisterThanks() {
+	appContainer.RegisterService("thanksRepository", new(gorm.ThanksRepository))
+}

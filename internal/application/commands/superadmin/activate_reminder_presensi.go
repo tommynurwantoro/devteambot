@@ -64,6 +64,7 @@ func (c *ActivateReminderPresensiCommand) activateButton(s *discordgo.Session, i
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					discordgo.SelectMenu{
+						MenuType: discordgo.ChannelSelectMenu,
 						CustomID: "choose_reminder_presensi_channel",
 						Options:  channelOptions,
 					},
@@ -110,6 +111,7 @@ func (c *ActivateReminderPresensiCommand) chooseChannel(s *discordgo.Session, i 
 		discordgo.ActionsRow{
 			Components: []discordgo.MessageComponent{
 				discordgo.SelectMenu{
+					MenuType: discordgo.RoleSelectMenu,
 					CustomID: "choose_reminder_presensi_role",
 					Options:  roleOptions,
 				},

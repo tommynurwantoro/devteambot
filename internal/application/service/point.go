@@ -10,8 +10,8 @@ import (
 
 type PointService interface {
 	ResetQuota(ctx context.Context) error
-	GetTopTen(ctx context.Context, guildID, category string) (point.Points, error)
-	SendThanks(ctx context.Context, guildID, from, to, core, reason string) error
+	GetTopTen(ctx context.Context, guildID string) (point.Points, error)
+	GetPointBalance(ctx context.Context, guildID, userID string) (int64, error)
 }
 
 type Point struct {
@@ -53,8 +53,8 @@ func (s *Point) ResetQuota(ctx context.Context) error {
 	return nil
 }
 
-func (s *Point) GetTopTen(ctx context.Context, guildID, category string) (point.Points, error) {
-	topTen, err := s.PointRepository.GetTopTen(ctx, guildID, category)
+func (s *Point) GetTopTen(ctx context.Context, guildID string) (point.Points, error) {
+	topTen, err := s.PointRepository.GetTopTen(ctx, guildID)
 	if err != nil {
 		return nil, err
 	}
@@ -66,23 +66,11 @@ func (s *Point) GetTopTen(ctx context.Context, guildID, category string) (point.
 	return topTen, nil
 }
 
-func (s *Point) SendThanks(ctx context.Context, guildID, from, to, core, reason string) error {
-	// Cek limit
-	limit := 0
-	if err := s.Cache.Get(ctx, s.RedisKey.LimitThanks(guildID, from), &limit); err != nil && err != cache.ErrNil {
-		return err
-	}
-
-	if limit >= 30 {
-		return point.ErrLimitReached
-	}
-
-	_, err := s.PointRepository.Increase(ctx, guildID, to, core, reason, 10)
+func (s *Point) GetPointBalance(ctx context.Context, guildID, userID string) (int64, error) {
+	point, err := s.PointRepository.GetByUserID(ctx, guildID, userID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	s.Cache.Increment(ctx, s.RedisKey.LimitThanks(guildID, from), 10)
-
-	return nil
+	return point.Balance, nil
 }

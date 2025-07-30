@@ -26,6 +26,8 @@ func RegisterService() {
 	appContainer.RegisterService("pointService", new(service.Point))
 	appContainer.RegisterService("sholatService", new(service.Sholat))
 	appContainer.RegisterService("aiService", new(service.AI))
+	appContainer.RegisterService("marketplaceService", new(service.Marketplace))
+	appContainer.RegisterService("thanksService", new(service.Thanks))
 }
 
 func RegisterAPI() {
@@ -42,6 +44,7 @@ func RegisterCommand() {
 	appContainer.RegisterService("deleteButtonFeatureCommand", new(superadmin.DeleteButtonFeatureCommand))
 	appContainer.RegisterService("editEmbedCommand", new(superadmin.EditEmbedCommand))
 	appContainer.RegisterService("sendEmbedCommand", new(superadmin.SendEmbedCommand))
+	appContainer.RegisterService("marketplaceCommandSuperAdmin", new(superadmin.MarketplaceCommand))
 
 	// Member
 	appContainer.RegisterService("antrianReviewCommand", new(member.AntrianReviewCommand))
@@ -52,6 +55,8 @@ func RegisterCommand() {
 	appContainer.RegisterService("thanksCommand", new(member.ThanksCommand))
 	appContainer.RegisterService("thanksLeaderboardCommand", new(member.ThanksLeaderboardCommand))
 	appContainer.RegisterService("titipReviewCommand", new(member.TitipReviewCommand))
+	appContainer.RegisterService("marketplaceCommandMember", new(member.MarketplaceCommand))
+	appContainer.RegisterService("checkBalanceCommand", new(member.CheckBalanceCommand))
 
 	appContainer.RegisterService("commandSuperAdmin", new(superadmin.Command))
 	appContainer.RegisterService("commandMember", new(member.Command))

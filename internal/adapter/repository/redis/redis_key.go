@@ -17,10 +17,10 @@ type RedisKey struct {
 
 func NewRedisKey() RedisKey {
 	key := make(map[KeyType]string)
-	key[DailySholatSchedule] = "daily-sholat-schedule"
-	key[LimitThanks] = "limit-thanks-%s-%s"
-	key[AllLimitThanks] = "limit-thanks-*"
-	key[AllThanksThisWeek] = "thanks-this-week-*"
+	key[DailySholatSchedule] = "daily_sholat_schedule"
+	key[LimitThanks] = "limit_thanks|%s|%s"
+	key[AllLimitThanks] = "limit_thanks|*"
+	key[AllThanksThisWeek] = "thanks_this_week|*"
 
 	return RedisKey{key}
 }
